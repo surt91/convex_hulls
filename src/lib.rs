@@ -55,6 +55,61 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
     hull
 }
 
+pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
+    let (min_x, max_x) = pointset.iter()
+        .tuples::<(_, _)>()
+        .fold(((0., 0.), (0., 0.)), |(x_min, x_max), (&x, &y)| {
+            let min_out = if x < x_min.0 { (x, y) } else { x_min };
+            let max_out = if x > x_max.0 { (x, y) } else { x_max };
+            (min_out, max_out)
+        });
+
+    let mut hull: Vec<f64> = Vec::new();
+
+    qh_recursion(pointset, min_x, max_x, &mut hull);
+    qh_recursion(pointset, max_x, min_x, &mut hull);
+
+    // remove collinear points
+    let first = (hull[0], hull[1]);
+    let last = (hull[hull.len()-2], hull[hull.len()-1]);
+    let mut hull = hull.iter()
+        .tuples::<(_, _)>()
+        .tuple_windows::<(_, _, _)>()
+        .map(|(a, b, c)| ((*a.0, *a.1), (*b.0, *b.1), (*c.0, *c.1)))
+        .filter(|&i| cross2d(i.0, i.1, i.2) > 1e-6)
+        .fold(Vec::new(), |mut acc, (_, b, _)| { acc.push(b.0); acc.push(b.1); acc });
+    hull.push(last.0);
+    hull.push(last.1);
+    hull.push(first.0);
+    hull.push(first.1);
+
+    hull
+}
+
+fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f64>) {
+    // find left and farthest away point q
+    let left_of: Vec<f64> = pointset.iter()
+        .tuples::<(_, _)>()
+        .map(|a| (*a.0, *a.1))
+        .filter(|&i| cross2d(a, i, b) > 1e-6)
+        .fold(Vec::new(), |mut acc, p| { acc.push(p.0); acc.push(p.1); acc });
+
+    // if there is none: add b to out and return
+    if left_of.len() == 0 {
+        out.push(b.0);
+        out.push(b.1);
+    } else {
+        // else recurse with the edge (a, q) and (q, b)
+        let q = left_of.iter()
+            .tuples::<(_, _)>()
+            .map(|a| (*a.0, *a.1))
+            .fold(b, |farthest: (f64, f64), i: (f64, f64)| if cross2d(a, farthest, b) > cross2d(a, i, b) {farthest} else {i});
+
+        qh_recursion(&left_of, a, q, out);
+        qh_recursion(&left_of, q, b, out);
+    }
+}
+
 #[test]
 fn test_hull() {
     let p = vec![
@@ -67,8 +122,11 @@ fn test_hull() {
     ];
 
     let expected_area = 1.0;
-    let hull = andrew(&p);
+    let hull_andrew = andrew(&p);
+    let hull_qh = quickhull(&p);
 
-    assert_eq!(hull.len(), 2*4);
-    assert_approx_eq!(area(&hull), expected_area);
+    assert_eq!(hull_andrew.len(), 2*4);
+    assert_eq!(hull_qh.len(), 2*4);
+    assert_approx_eq!(area(&hull_andrew), expected_area);
+    assert_approx_eq!(area(&hull_qh), expected_area);
 }
