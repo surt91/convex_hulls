@@ -20,15 +20,14 @@ fn area(coord: &[f64]) -> f64 {
 pub fn andrew(pointset: &[f64]) -> Vec<f64> {
     // sort by x coordinates
     let sorted = pointset.iter()
-            // .chunks(2)
-            .tuples::<(_, _)>()
-            .sorted_by(|a, b| {
-                if a.0.partial_cmp(b.0).unwrap_or(Less) == Less {
-                    Less
-                } else {
-                    a.1.partial_cmp(b.1).unwrap_or(Less)
-                }
-            });
+        .tuples::<(_, _)>()
+        .sorted_by(|a, b| {
+            if a.0.partial_cmp(b.0).unwrap_or(Less) == Less {
+                Less
+            } else {
+                a.1.partial_cmp(b.1).unwrap_or(Less)
+            }
+        });
 
     //
     let mut hull = vec![0f64; 2*pointset.len()];
