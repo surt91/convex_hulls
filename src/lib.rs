@@ -34,24 +34,24 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
     let mut hull = vec![0f64; 2*pointset.len()];
     let mut k = 0;
     for i in sorted.iter().map(|a| (*a.0, *a.1)) {
-        if k >= 4 && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]) , i) <= 0f64 {
+        while k >= 4 && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]) , i) <= 0f64 {
             k -= 2;
         }
         hull[k] = i.0;
         hull[k+1] = i.1;
         k += 2;
     }
-    let t = k+1;
+    let t = k+2;
     for i in sorted.iter().rev().map(|a| (*a.0, *a.1)) {
-        if k >= t && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]) , i) <= 0f64 {
+        while k >= t && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]) , i) <= 0f64 {
             k -= 2;
         }
         hull[k] = i.0;
         hull[k+1] = i.1;
         k += 2;
     }
-    // -1 because first and last are same
-    hull.truncate(k - 1);
+    // -2 because first and last are same
+    hull.truncate(k - 2);
 
     hull
 }
@@ -59,13 +59,17 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
 #[test]
 fn test_hull() {
     let p = vec![
-        0., 0.,
-        1., 0.,
-        0., 1.,
-        1., 1.,
+        0.0, 0.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        1.0, 1.0,
+        0.5, 1.0,
+        0.5, 0.5,
     ];
 
     let expected_area = 1.0;
+    let hull = andrew(&p);
 
-    assert_approx_eq!(area(&andrew(&p)), expected_area);
+    assert_eq!(hull.len(), 2*4);
+    assert_approx_eq!(area(&hull), expected_area);
 }
