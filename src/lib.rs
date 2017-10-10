@@ -1,11 +1,19 @@
 use std::cmp::Ordering::Less;
 
+#[macro_use] extern crate assert_approx_eq;
+
 extern crate itertools;
 use itertools::Itertools;
 
-
 fn cross2d(o: (f64, f64), a: (f64, f64), b: (f64, f64)) -> f64 {
     (a.0 - o.0) * (b.1 - o.1) - (a.1 - o.1) * (b.0 - o.0)
+}
+
+fn area(coord: &[f64]) -> f64 {
+    coord.iter()
+         .tuples::<(_, _)>()
+         .tuple_windows::<(_, _)>()
+         .fold(0f64, |sum, ((x1, y1), (x2, y2))| sum + (y1+y2) * (x1-x2)) / 2.
 }
 
 // points stores a contiguous array of 2N floats in the format x1, y1, x2, y2, ...
@@ -57,12 +65,7 @@ fn test_hull() {
         1., 1.,
     ];
 
-    let expected: Vec<(f64, f64)> =
-        p.iter().tuples::<(_, _)>().map(|a| (*a.0, *a.1)).collect();
-    let result: Vec<(f64, f64)> =
-        andrew(&p).iter().tuples::<(_, _)>().map(|a| (*a.0, *a.1)).collect();
+    let expected_area = 1.0;
 
-    println!("{:?}", expected);
-    println!("{:?}", result);
-    assert_eq!(0, 1);
+    assert_approx_eq!(area(&andrew(&p)), expected_area);
 }
