@@ -1,6 +1,10 @@
-use std::cmp::Ordering::Less;
+#![feature(test)]
+extern crate test;
 
-#[macro_use] extern crate assert_approx_eq;
+#[macro_use]
+extern crate assert_approx_eq;
+
+use std::cmp::Ordering::Less;
 
 extern crate itertools;
 use itertools::Itertools;
@@ -110,23 +114,62 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
     }
 }
 
-#[test]
-fn test_hull() {
-    let p = vec![
-        0.0, 0.0,
-        1.0, 0.0,
-        0.0, 1.0,
-        1.0, 1.0,
-        0.5, 1.0,
-        0.5, 0.5,
-    ];
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use test::Bencher;
 
-    let expected_area = 1.0;
-    let hull_andrew = andrew(&p);
-    let hull_qh = quickhull(&p);
+    extern crate rand;
+    use self::rand::{StdRng, Rng, SeedableRng};
 
-    assert_eq!(hull_andrew.len(), 2*4);
-    assert_eq!(hull_qh.len(), 2*4);
-    assert_approx_eq!(area(&hull_andrew), expected_area);
-    assert_approx_eq!(area(&hull_qh), expected_area);
+    fn get_test_vector() -> Vec<f64> {
+        let seed: &[_] = &[42,];
+        let mut rng: StdRng = SeedableRng::from_seed(seed);
+        rng.gen_iter::<f64>()
+           .take(2048 * 2)
+           .collect()
+    }
+
+    #[test]
+    fn test_hull() {
+        let p = vec![
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            1.0, 1.0,
+            0.5, 1.0,
+            0.5, 0.5,
+        ];
+
+        let expected_area = 1.0;
+        let hull_andrew = andrew(&p);
+        let hull_qh = quickhull(&p);
+
+        assert_eq!(hull_andrew.len(), 2*4);
+        assert_eq!(hull_qh.len(), 2*4);
+        assert_approx_eq!(area(&hull_andrew), expected_area);
+        assert_approx_eq!(area(&hull_qh), expected_area);
+    }
+
+    #[bench]
+    fn bench_andrew2048(b: &mut Bencher) {
+        let v = get_test_vector();
+
+        b.iter(|| andrew(&v));
+
+        let hull = andrew(&v);
+        assert_eq!(hull.len(), 36);
+        assert_approx_eq!(area(&hull), 0.9942297515380842);
+    }
+
+    #[bench]
+    fn bench_quickhull2048(b: &mut Bencher) {
+        let v = get_test_vector();
+
+        b.iter(|| quickhull(&v));
+
+        let hull = quickhull(&v);
+        assert_eq!(hull.len(), 36);
+        assert_approx_eq!(area(&hull), 0.9942297515380842);
+    }
 }

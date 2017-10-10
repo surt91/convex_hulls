@@ -6,3 +6,4 @@ authors = ["Hendrik Schawe <hendrik.schawe@uni-oldenburg.de>"]
 [dependencies]
 itertools = "*"
 assert_approx_eq = "*"
+rand = "*"
