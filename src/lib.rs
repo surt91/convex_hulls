@@ -109,18 +109,18 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
 
 pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
     let start = (pointset[0], pointset[1]);
-    let (min_x, max_x) = pointset.iter()
+    let (min, max) = pointset.iter()
         .tuples::<(_, _)>()
-        .fold((start, start), |(x_min, x_max), (&x, &y)| {
-            let min_out = if x < x_min.0 { (x, y) } else { x_min };
-            let max_out = if x > x_max.0 { (x, y) } else { x_max };
-            (min_out, max_out)
+        .fold((start, start), |(min, max), (&x, &y)| {
+            let min = if x < min.0 { (x, y) } else { min };
+            let max = if x > max.0 { (x, y) } else { max };
+            (min, max)
         });
 
     let mut hull: Vec<f64> = Vec::new();
 
-    qh_recursion(pointset, min_x, max_x, &mut hull);
-    qh_recursion(pointset, max_x, min_x, &mut hull);
+    qh_recursion(pointset, min, max, &mut hull);
+    qh_recursion(pointset, max, min, &mut hull);
 
     hull
 }
