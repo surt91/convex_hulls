@@ -162,11 +162,11 @@ mod tests {
     extern crate rand;
     use self::rand::{StdRng, Rng, SeedableRng};
 
-    fn get_test_vector() -> Vec<f64> {
+    fn get_test_vector(n: usize) -> Vec<f64> {
         let seed: &[_] = &[42,];
         let mut rng: StdRng = SeedableRng::from_seed(seed);
         rng.gen_iter::<f64>()
-           .take(2048 * 2)
+           .take(n * 2)
            .collect()
     }
 
@@ -193,23 +193,27 @@ mod tests {
 
     #[bench]
     fn bench_andrew2048(b: &mut Bencher) {
-        let v = get_test_vector();
+        let v = get_test_vector(2048);
 
         b.iter(|| andrew(&v));
 
         let hull = andrew(&v);
-        assert_eq!(hull.len(), 36);
-        assert_approx_eq!(area(&hull), 0.9942297515380842);
+        svg(&v, &hull, "andrew.svg");
+
+        assert_eq!(hull.len(), 48);
+        assert_approx_eq!(area(&hull), 0.9915082733644154);
     }
 
     #[bench]
     fn bench_quickhull2048(b: &mut Bencher) {
-        let v = get_test_vector();
+        let v = get_test_vector(2048);
 
         b.iter(|| quickhull(&v));
 
         let hull = quickhull(&v);
-        assert_eq!(hull.len(), 36);
-        assert_approx_eq!(area(&hull), 0.9942297515380842);
+        svg(&v, &hull, "quickhull.svg");
+
+        assert_eq!(hull.len(), 48);
+        assert_approx_eq!(area(&hull), 0.9915082733644154);
     }
 }
