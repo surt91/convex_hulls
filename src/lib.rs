@@ -21,6 +21,7 @@ fn cross2d(o: (f64, f64), a: (f64, f64), b: (f64, f64)) -> f64 {
 
 fn area(coord: &[f64]) -> f64 {
     coord.iter()
+         .chain(coord.iter().take(2)) // append the first point, to close the loop
          .tuples::<(_, _)>()
          .tuple_windows::<(_, _)>()
          .fold(0f64, |sum, ((x1, y1), (x2, y2))| sum + (y1+y2) * (x1-x2)) / 2.
