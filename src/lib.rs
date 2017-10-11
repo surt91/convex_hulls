@@ -73,6 +73,10 @@ fn dist2(a: (f64, f64), b: (f64, f64)) -> f64 {
 
 // points stores a contiguous array of 2N floats in the format x1, y1, x2, y2, ...
 pub fn andrew(pointset: &[f64]) -> Vec<f64> {
+    if pointset.len() < 3*2 {
+        return pointset.to_vec()
+    }
+
     // sort by x coordinates
     let sorted = pointset.iter()
         .tuples::<(_, _)>()
@@ -112,6 +116,10 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
 }
 
 pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
+    if pointset.len() < 3*2 {
+        return pointset.to_vec()
+    }
+
     let start = (pointset[0], pointset[1]);
     let (min, max) = pointset.iter()
         .tuples::<(_, _)>()
