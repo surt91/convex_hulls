@@ -1,3 +1,4 @@
+#![feature(slice_patterns)]
 #![feature(test)]
 extern crate test;
 
@@ -25,6 +26,45 @@ fn area(coord: &[f64]) -> f64 {
          .tuples::<(_, _)>()
          .tuple_windows::<(_, _)>()
          .fold(0f64, |sum, ((x1, y1), (x2, y2))| sum + (y1+y2) * (x1-x2)) / 2.
+}
+
+pub fn akl(pointset: &[f64]) -> Vec<f64> {
+    let start = (pointset[0], pointset[1]);
+    let octagon = pointset.iter()
+        .tuples::<(_, _)>()
+        .fold([start; 8], |[minx, maxx, miny, maxy, minxpy, maxxpy, minxmy, maxxmy], (&x, &y)| {
+            let minx = if x < minx.0 { (x, y) } else { minx };
+            let maxx = if x > maxx.0 { (x, y) } else { maxx };
+            let miny = if y < miny.1 { (x, y) } else { miny };
+            let maxy = if y > maxy.1 { (x, y) } else { maxy };
+            let minxpy = if x+y < minxpy.0 + minxpy.1 { (x, y) } else { minxpy };
+            let maxxpy = if x+y > minxpy.0 + minxpy.1 { (x, y) } else { maxxpy };
+            let minxmy = if x-y < minxpy.0 - minxpy.1 { (x, y) } else { minxmy };
+            let maxxmy = if x-y > minxpy.0 - minxpy.1 { (x, y) } else { maxxmy };
+            [minx, minxmy, maxy, maxxpy, maxx, maxxmy, miny, minxpy]
+        });
+
+    pointset.iter()
+        .tuples::<(_, _)>()
+        .map(|a| (*a.0, *a.1))
+        .filter(|&p| point_in_octagon(octagon, p))
+        .fold(Vec::new(), |mut acc, p| { acc.push(p.0); acc.push(p.1); acc })
+}
+
+fn side(p1: (f64, f64), p2: (f64, f64), p: (f64, f64)) -> f64 {
+    return (p2.1 - p1.1)*(p.0 - p1.0) + (-p2.0 + p1.0)*(p.1 - p1.1);
+}
+
+fn point_in_octagon(octagon: [(f64, f64); 8], p: (f64, f64)) -> bool {
+    // compare opposite sites first
+       side(octagon[0], octagon[1], p) >= 0f64
+    && side(octagon[2], octagon[3], p) >= 0f64
+    && side(octagon[4], octagon[5], p) >= 0f64
+    && side(octagon[6], octagon[7], p) >= 0f64
+    && side(octagon[1], octagon[2], p) >= 0f64
+    && side(octagon[3], octagon[4], p) >= 0f64
+    && side(octagon[5], octagon[6], p) >= 0f64
+    && side(octagon[7], octagon[0], p) >= 0f64
 }
 
 // points stores a contiguous array of 2N floats in the format x1, y1, x2, y2, ...
@@ -185,7 +225,7 @@ mod tests {
     }
 
     #[bench]
-    fn bench_andrew2048(b: &mut Bencher) {
+    fn bench_andrew_2048(b: &mut Bencher) {
         let v = get_test_vector(2048);
 
         b.iter(|| andrew(&v));
@@ -198,13 +238,39 @@ mod tests {
     }
 
     #[bench]
-    fn bench_quickhull2048(b: &mut Bencher) {
+    fn bench_andrew_akl_2048(b: &mut Bencher) {
+        let v = get_test_vector(2048);
+
+        b.iter(|| andrew(&akl(&v)));
+
+        let hull = andrew(&v);
+        svg(&v, &hull, "andrew_akl.svg");
+
+        assert_eq!(hull.len(), 48);
+        assert_approx_eq!(area(&hull), 0.9915082733644154);
+    }
+
+    #[bench]
+    fn bench_quickhull_2048(b: &mut Bencher) {
         let v = get_test_vector(2048);
 
         b.iter(|| quickhull(&v));
 
         let hull = quickhull(&v);
         svg(&v, &hull, "quickhull.svg");
+
+        assert_eq!(hull.len(), 48);
+        assert_approx_eq!(area(&hull), 0.9915082733644154);
+    }
+
+    #[bench]
+    fn bench_quickhull_akl_2048(b: &mut Bencher) {
+        let v = get_test_vector(2048);
+
+        b.iter(|| andrew(&akl(&v)));
+
+        let hull = andrew(&v);
+        svg(&v, &hull, "quickhull_akl.svg");
 
         assert_eq!(hull.len(), 48);
         assert_approx_eq!(area(&hull), 0.9915082733644154);
