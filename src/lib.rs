@@ -168,6 +168,55 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
     }
 }
 
+pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
+    if pointset.len() < 3*2 {
+        return pointset.to_vec()
+    }
+
+    let start = (pointset[0], pointset[1]);
+    let min = pointset.iter()
+        .tuples::<(_, _)>()
+        .fold(start, |min, (&x, &y)| {
+            if x < min.0 { (x, y) } else { min }
+        });
+
+    let mut hull = Vec::new();
+    hull.push(min.0);
+    hull.push(min.1);
+
+    let mut p = pointset.iter()
+        .tuples::<(_, _)>()
+        .map(|a| (*a.0, *a.1))
+        .filter(|&i| i != min)
+        .nth(0)
+        .unwrap();
+
+    loop {
+        for i in pointset.iter()
+            .tuples::<(_, _)>()
+            .map(|a| (*a.0, *a.1))
+        {
+            let a = (hull[hull.len()-2], hull[hull.len()-1]);
+            let orientation = cross2d(a, i, p);
+            if orientation > 0f64 {
+                p = i;
+            } else if orientation == 0f64 {
+                // take the one furthest away, to avoid collinear points
+                if dist2(a, p) < dist2(a, i) {
+                    p = i;
+                }
+            }
+        }
+        if p == min {
+            break;
+        }
+        hull.push(p.0);
+        hull.push(p.1);
+    }
+
+    hull
+}
+
 fn svg(pointset: &[f64], hull: &[f64], filename: &str) -> Result<(), io::Error> {
     let path = Path::new(filename);
 
@@ -223,11 +272,14 @@ mod tests {
         let expected_area = 1.0;
         let hull_andrew = andrew(&p);
         let hull_qh = quickhull(&p);
+        let hull_jarvis = jarvis(&p);
 
         assert_eq!(hull_andrew.len(), 2*4);
         assert_eq!(hull_qh.len(), 2*4);
+        assert_eq!(hull_jarvis.len(), 2*4);
         assert_approx_eq!(area(&hull_andrew), expected_area);
         assert_approx_eq!(area(&hull_qh), expected_area);
+        assert_approx_eq!(area(&hull_jarvis), expected_area);
     }
 
     #[bench]
@@ -277,6 +329,32 @@ mod tests {
 
         let hull = quickhull(&akl(&v));
         svg(&v, &hull, "quickhull_akl.svg");
+
+        assert_eq!(hull.len(), 48);
+        assert_approx_eq!(area(&hull), 0.9915082733644154);
+    }
+
+    #[bench]
+    fn bench_jarvis_2048(b: &mut Bencher) {
+        let v = get_test_vector(2048);
+
+        b.iter(|| jarvis(&v));
+
+        let hull = jarvis(&v);
+        svg(&v, &hull, "jarvis_akl.svg");
+
+        assert_eq!(hull.len(), 48);
+        assert_approx_eq!(area(&hull), 0.9915082733644154);
+    }
+
+    #[bench]
+    fn bench_jarvis_akl_2048(b: &mut Bencher) {
+        let v = get_test_vector(2048);
+
+        b.iter(|| jarvis(&akl(&v)));
+
+        let hull = jarvis(&akl(&v));
+        svg(&v, &hull, "jarvis_akl.svg");
 
         assert_eq!(hull.len(), 48);
         assert_approx_eq!(area(&hull), 0.9915082733644154);
