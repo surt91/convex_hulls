@@ -45,8 +45,8 @@ pub fn akl(pointset: &[f64]) -> Vec<f64> {
         });
 
     pointset.iter()
+        .cloned()
         .tuples::<(_, _)>()
-        .map(|a| (*a.0, *a.1))
         .filter(|&p| !point_in_octagon(octagon, p))
         .fold(Vec::new(), |mut acc, p| { acc.push(p.0); acc.push(p.1); acc })
 }
@@ -93,7 +93,7 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
     let mut hull = vec![0f64; 2*pointset.len()];
     let mut k = 0;
     for i in sorted.iter().map(|a| (*a.0, *a.1)) {
-        while k >= 4 && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]) , i) <= 0f64 {
+        while k >= 4 && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]), i) <= 0f64 {
             k -= 2;
         }
         hull[k] = i.0;
@@ -140,8 +140,8 @@ pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
 fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f64>) {
     // find left and farthest away point q
     let left_of: Vec<f64> = pointset.iter()
+        .cloned()
         .tuples::<(_, _)>()
-        .map(|a| (*a.0, *a.1))
         .filter(|&i| cross2d(a, i, b) > 0f64)
         .fold(Vec::new(), |mut acc, p| { acc.push(p.0); acc.push(p.1); acc });
 
@@ -159,8 +159,8 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
     } else {
         // else recurse with the edge (a, q) and (q, b)
         let q = left_of.iter()
+            .cloned()
             .tuples::<(_, _)>()
-            .map(|a| (*a.0, *a.1))
             .fold(b, |farthest: (f64, f64), i: (f64, f64)| if cross2d(a, farthest, b) > cross2d(a, i, b) {farthest} else {i});
 
         qh_recursion(&left_of, a, q, out);
@@ -185,16 +185,16 @@ pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
     hull.push(min.1);
 
     let mut p = pointset.iter()
+        .cloned()
         .tuples::<(_, _)>()
-        .map(|a| (*a.0, *a.1))
         .filter(|&i| i != min)
         .nth(0)
         .unwrap();
 
     loop {
         for i in pointset.iter()
+            .cloned()
             .tuples::<(_, _)>()
-            .map(|a| (*a.0, *a.1))
         {
             let a = (hull[hull.len()-2], hull[hull.len()-1]);
             let orientation = cross2d(a, i, p);
