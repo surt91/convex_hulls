@@ -88,7 +88,7 @@ pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
         .tuples::<(_, _)>()
         .tuple_windows::<(_, _, _)>()
         .map(|(a, b, c)| ((*a.0, *a.1), (*b.0, *b.1), (*c.0, *c.1)))
-        .filter(|&i| cross2d(i.0, i.1, i.2) > 1e-6)
+        .filter(|&i| cross2d(i.0, i.1, i.2) > 0f64)
         .fold(Vec::new(), |mut acc, (_, b, _)| { acc.push(b.0); acc.push(b.1); acc });
     hull.push(last.0);
     hull.push(last.1);
@@ -103,7 +103,7 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
     let left_of: Vec<f64> = pointset.iter()
         .tuples::<(_, _)>()
         .map(|a| (*a.0, *a.1))
-        .filter(|&i| cross2d(a, i, b) > 1e-6)
+        .filter(|&i| cross2d(a, i, b) > 0f64)
         .fold(Vec::new(), |mut acc, p| { acc.push(p.0); acc.push(p.1); acc });
 
     // if there is none: add b to out and return
