@@ -158,15 +158,9 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
 
 fn svg(pointset: &[f64], hull: &[f64], filename: &str) -> Result<(), io::Error> {
     let path = Path::new(filename);
-    let display = path.display();
 
     // Open a file in write-only mode, returns `io::Result<File>`
-    let mut file = match File::create(&path) {
-        Err(why) => panic!("couldn't create {}: {}",
-                           display,
-                           why.description()),
-        Ok(file) => file,
-    };
+    let mut file = File::create(&path)?;
 
     write!(file, "<?xml version='1.0' encoding='UTF-8'?> \n\
                 <!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>\n\
