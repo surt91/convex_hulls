@@ -68,9 +68,10 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
 }
 
 pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
+    let start = (pointset[0], pointset[1]);
     let (min_x, max_x) = pointset.iter()
         .tuples::<(_, _)>()
-        .fold(((0., 0.), (0., 0.)), |(x_min, x_max), (&x, &y)| {
+        .fold((start, start), |(x_min, x_max), (&x, &y)| {
             let min_out = if x < x_min.0 { (x, y) } else { x_min };
             let max_out = if x > x_max.0 { (x, y) } else { x_max };
             (min_out, max_out)
