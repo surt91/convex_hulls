@@ -4,7 +4,7 @@ extern crate test;
 #[macro_use]
 extern crate assert_approx_eq;
 
-use std::cmp::Ordering::Less;
+use std::cmp::Ordering::{Less, Equal};
 
 extern crate itertools;
 use itertools::Itertools;
@@ -26,8 +26,9 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
     let sorted = pointset.iter()
         .tuples::<(_, _)>()
         .sorted_by(|a, b| {
-            if a.0.partial_cmp(b.0).unwrap_or(Less) == Less {
-                Less
+            let tmp = a.0.partial_cmp(b.0).unwrap_or(Less);
+            if tmp != Equal {
+                tmp
             } else {
                 a.1.partial_cmp(b.1).unwrap_or(Less)
             }
