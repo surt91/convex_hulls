@@ -82,20 +82,6 @@ pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
     qh_recursion(pointset, min_x, max_x, &mut hull);
     qh_recursion(pointset, max_x, min_x, &mut hull);
 
-    // remove collinear points
-    let first = (hull[0], hull[1]);
-    let last = (hull[hull.len()-2], hull[hull.len()-1]);
-    let mut hull = hull.iter()
-        .tuples::<(_, _)>()
-        .tuple_windows::<(_, _, _)>()
-        .map(|(a, b, c)| ((*a.0, *a.1), (*b.0, *b.1), (*c.0, *c.1)))
-        .filter(|&i| cross2d(i.0, i.1, i.2) > 0f64)
-        .fold(Vec::new(), |mut acc, (_, b, _)| { acc.push(b.0); acc.push(b.1); acc });
-    hull.push(last.0);
-    hull.push(last.1);
-    hull.push(first.0);
-    hull.push(first.1);
-
     hull
 }
 
@@ -109,8 +95,15 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
 
     // if there is none: add b to out and return
     if left_of.len() == 0 {
-        out.push(b.0);
-        out.push(b.1);
+        let n = out.len();
+        // ensure no collinear points
+        if n < 4 || cross2d((out[n-4], out[n-3]), (out[n-2], out[n-1]), b) > 0f64 {
+            out.push(b.0);
+            out.push(b.1);
+        } else {
+            out[n-2] = b.0;
+            out[n-1] = b.1;
+        }
     } else {
         // else recurse with the edge (a, q) and (q, b)
         let q = left_of.iter()
