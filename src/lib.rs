@@ -9,6 +9,12 @@ use std::cmp::Ordering::{Less, Equal};
 extern crate itertools;
 use itertools::Itertools;
 
+use std::error::Error;
+use std::io;
+use std::io::prelude::*;
+use std::fs::File;
+use std::path::Path;
+
 fn cross2d(o: (f64, f64), a: (f64, f64), b: (f64, f64)) -> f64 {
     (a.0 - o.0) * (b.1 - o.1) - (a.1 - o.1) * (b.0 - o.0)
 }
@@ -115,23 +121,35 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
     }
 }
 
-fn svg(pointset: &[f64], hull: &[f64]) {
-    print!("<?xml version='1.0' encoding='UTF-8'?> \n\
+fn svg(pointset: &[f64], hull: &[f64], filename: &str) -> Result<(), io::Error> {
+    let path = Path::new(filename);
+    let display = path.display();
+
+    // Open a file in write-only mode, returns `io::Result<File>`
+    let mut file = match File::create(&path) {
+        Err(why) => panic!("couldn't create {}: {}",
+                           display,
+                           why.description()),
+        Ok(file) => file,
+    };
+
+    write!(file, "<?xml version='1.0' encoding='UTF-8'?> \n\
                 <!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>\n\
                 <svg xmlns='http://www.w3.org/2000/svg'\n\
                 xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:ev='http://www.w3.org/2001/xml-events'\n\
-                version='1.1' baseProfile='full' width='800px' height='800px' viewBox='0 0 1 1'>\n");
+                version='1.1' baseProfile='full' width='800px' height='800px' viewBox='-0.05 -0.05 1.10 1.10'>\n")?;
     for i in pointset.iter().tuples::<(_, _)>() {
-        println!("<circle cx='{}' cy='{}' r='0.01' stroke='black' stroke-width='0' />", i.0, i.1);
+        write!(file, "<circle cx='{}' cy='{}' r='0.01' stroke='black' stroke-width='0' />\n", i.0, i.1)?;
     }
 
     for (a, b) in hull.iter()
                       .tuples::<(_, _)>()
                       .tuple_windows::<(_, _)>()
     {
-        println!("<line x1='{}' x2='{}' y1='{}' y2='{}' stroke='red' stroke-width='0.002' />", a.0, b.0, a.1, b.1);
+        write!(file, "<line x1='{}' x2='{}' y1='{}' y2='{}' stroke='red' stroke-width='0.002' />\n", a.0, b.0, a.1, b.1)?;
     }
-    println!("</svg>");
+    write!(file, "</svg>\n")?;
+    Ok(())
 }
 
 #[cfg(test)]
