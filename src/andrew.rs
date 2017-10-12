@@ -21,28 +21,32 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
             }
         });
 
-    //
-    let mut hull = vec![0f64; 2*pointset.len()];
+    let mut hull = Vec::new();
     let mut k = 0;
     for i in sorted.iter().map(|a| (*a.0, *a.1)) {
         while k >= 4 && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]), i) <= 0f64 {
+            hull.pop();
+            hull.pop();
             k -= 2;
         }
-        hull[k] = i.0;
-        hull[k+1] = i.1;
+        hull.push(i.0);
+        hull.push(i.1);
         k += 2;
     }
     let t = k+2;
     for i in sorted.iter().rev().map(|a| (*a.0, *a.1)) {
         while k >= t && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]) , i) <= 0f64 {
+            hull.pop();
+            hull.pop();
             k -= 2;
         }
-        hull[k] = i.0;
-        hull[k+1] = i.1;
+        hull.push(i.0);
+        hull.push(i.1);
         k += 2;
     }
     // -2 because first and last are same
-    hull.truncate(k - 2);
+    hull.pop();
+    hull.pop();
 
     hull
 }
