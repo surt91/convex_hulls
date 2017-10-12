@@ -1,0 +1,48 @@
+use itertools::Itertools;
+use std::cmp::Ordering::{Less, Equal};
+
+use primitives::cross2d;
+
+// points stores a contiguous array of 2N floats in the format x1, y1, x2, y2, ...
+pub fn andrew(pointset: &[f64]) -> Vec<f64> {
+    if pointset.len() < 3*2 {
+        return pointset.to_vec()
+    }
+
+    // sort by x coordinates
+    let sorted = pointset.iter()
+        .tuples::<(_, _)>()
+        .sorted_by(|a, b| {
+            let tmp = a.0.partial_cmp(b.0).unwrap_or(Less);
+            if tmp != Equal {
+                tmp
+            } else {
+                a.1.partial_cmp(b.1).unwrap_or(Less)
+            }
+        });
+
+    //
+    let mut hull = vec![0f64; 2*pointset.len()];
+    let mut k = 0;
+    for i in sorted.iter().map(|a| (*a.0, *a.1)) {
+        while k >= 4 && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]), i) <= 0f64 {
+            k -= 2;
+        }
+        hull[k] = i.0;
+        hull[k+1] = i.1;
+        k += 2;
+    }
+    let t = k+2;
+    for i in sorted.iter().rev().map(|a| (*a.0, *a.1)) {
+        while k >= t && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]) , i) <= 0f64 {
+            k -= 2;
+        }
+        hull[k] = i.0;
+        hull[k+1] = i.1;
+        k += 2;
+    }
+    // -2 because first and last are same
+    hull.truncate(k - 2);
+
+    hull
+}
