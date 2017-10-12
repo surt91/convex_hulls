@@ -43,7 +43,7 @@ fn bench_andrew_2048(b: &mut Bencher) {
     b.iter(|| andrew(&v));
 
     let hull = andrew(&v);
-    svg(&v, &hull, "andrew.svg");
+    svg(&v, &hull, "andrew.svg").expect("io error");
 
     assert_eq!(hull.len(), 48);
     assert_approx_eq!(area(&hull), 0.9915082733644154);
@@ -56,7 +56,7 @@ fn bench_andrew_akl_2048(b: &mut Bencher) {
     b.iter(|| andrew(&akl(&v)));
 
     let hull = andrew(&akl(&v));
-    svg(&v, &hull, "andrew_akl.svg");
+    svg(&v, &hull, "andrew_akl.svg").expect("io error");
 
     assert_eq!(hull.len(), 48);
     assert_approx_eq!(area(&hull), 0.9915082733644154);
@@ -69,7 +69,7 @@ fn bench_quickhull_2048(b: &mut Bencher) {
     b.iter(|| quickhull(&v));
 
     let hull = quickhull(&v);
-    svg(&v, &hull, "quickhull.svg");
+    svg(&v, &hull, "quickhull.svg").expect("io error");
 
     assert_eq!(hull.len(), 48);
     assert_approx_eq!(area(&hull), 0.9915082733644154);
@@ -82,7 +82,7 @@ fn bench_quickhull_akl_2048(b: &mut Bencher) {
     b.iter(|| quickhull(&akl(&v)));
 
     let hull = quickhull(&akl(&v));
-    svg(&v, &hull, "quickhull_akl.svg");
+    svg(&v, &hull, "quickhull_akl.svg").expect("io error");
 
     assert_eq!(hull.len(), 48);
     assert_approx_eq!(area(&hull), 0.9915082733644154);
@@ -95,7 +95,7 @@ fn bench_jarvis_2048(b: &mut Bencher) {
     b.iter(|| jarvis(&v));
 
     let hull = jarvis(&v);
-    svg(&v, &hull, "jarvis_akl.svg");
+    svg(&v, &hull, "jarvis_akl.svg").expect("io error");
 
     assert_eq!(hull.len(), 48);
     assert_approx_eq!(area(&hull), 0.9915082733644154);
@@ -108,7 +108,7 @@ fn bench_jarvis_akl_2048(b: &mut Bencher) {
     b.iter(|| jarvis(&akl(&v)));
 
     let hull = jarvis(&akl(&v));
-    svg(&v, &hull, "jarvis_akl.svg");
+    svg(&v, &hull, "jarvis_akl.svg").expect("io error");
 
     assert_eq!(hull.len(), 48);
     assert_approx_eq!(area(&hull), 0.9915082733644154);
