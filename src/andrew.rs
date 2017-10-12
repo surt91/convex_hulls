@@ -10,21 +10,25 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
     }
 
     // sort by x coordinates
-    let sorted = pointset.iter()
+    let mut sorted: Vec<(f64, f64)> = pointset.iter()
+        .cloned()
         .tuples::<(_, _)>()
-        .sorted_by(|a, b| {
-            let tmp = a.0.partial_cmp(b.0).unwrap_or(Less);
+        .collect();
+
+    // sort by x and on tie by y
+    sorted.sort_unstable_by(|a, b| {
+            let tmp = a.0.partial_cmp(&b.0).unwrap_or(Less);
             if tmp != Equal {
                 tmp
             } else {
-                a.1.partial_cmp(b.1).unwrap_or(Less)
+                a.1.partial_cmp(&b.1).unwrap_or(Less)
             }
         });
 
     let mut hull = Vec::new();
     let mut k = 0;
-    for i in sorted.iter().map(|a| (*a.0, *a.1)) {
-        while k >= 4 && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]), i) <= 0f64 {
+    for i in sorted.iter() {
+        while k >= 4 && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]), *i) <= 0f64 {
             hull.pop();
             hull.pop();
             k -= 2;
@@ -34,8 +38,8 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
         k += 2;
     }
     let t = k+2;
-    for i in sorted.iter().rev().map(|a| (*a.0, *a.1)) {
-        while k >= t && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]) , i) <= 0f64 {
+    for i in sorted.iter().rev() {
+        while k >= t && cross2d((hull[k-4], hull[k-3]), (hull[k-2], hull[k-1]), *i) <= 0f64 {
             hull.pop();
             hull.pop();
             k -= 2;
