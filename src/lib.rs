@@ -10,12 +10,17 @@ extern crate itertools;
 #[cfg(test)]
 mod tests;
 
+// 2d
 mod primitives;
 pub mod visualization;
 pub mod andrew;
 pub mod quickhull;
 pub mod jarvis;
 pub mod akl;
+
+// 3d
+mod d3;
+pub mod quickhull3d;
 
 // reexports:
 use akl::akl;
