@@ -1,23 +1,45 @@
-use d3::{Point3, Facet3, surface};
+use itertools::Itertools;
+
+use d3::{Point3, Facet3, surface, threejs};
 
 pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     // get a facet with all points on the hull
     let start = pointset[0];
     // FIXME: we need to ensure that all 3 points are distinct
-    let (max_x, max_y, max_z) = pointset.iter()
-        .fold((start, start, start), |(max_x, max_y, max_z), &p| {
+    let extrema = pointset.iter()
+        .fold([start; 6], |[max_x, max_y, max_z, min_x, min_y, min_z], &p| {
             let max_x = if p.x > max_x.x { p } else { max_x };
             let max_y = if p.y > max_y.y { p } else { max_y };
             let max_z = if p.z > max_z.z { p } else { max_z };
-            (max_x, max_y, max_z)
+            let min_x = if p.x < min_x.x { p } else { min_x };
+            let min_y = if p.y < min_y.y { p } else { min_y };
+            let min_z = if p.z < min_z.z { p } else { min_z };
+            [max_x, max_y, max_z, min_x, min_y, min_z]
         });
 
     let mut hull: Vec<Facet3> = Vec::new();
 
+    let mut unique: Vec<Point3> = Vec::new();
+    'outer: for i in 0..extrema.len() {
+        for j in &unique {
+            if *j == extrema[i] {
+                continue 'outer;
+            }
+        }
+        unique.push(extrema[i]);
+    }
+    if unique.len() < 3 {
+        panic!();
+    }
+
+    let p1 = unique[0];
+    let p2 = unique[1];
+    let p3 = unique[2];
+
     println!("first");
-    quickhull3d_recursion(pointset, Facet3 { vertices: [max_x, max_y, max_z] }, &mut hull);
+    quickhull3d_recursion(pointset, Facet3 { vertices: [p1, p2, p3] }, &mut hull);
     println!("second");
-    quickhull3d_recursion(pointset, Facet3 { vertices: [max_x, max_z, max_y] }, &mut hull);
+    quickhull3d_recursion(pointset, Facet3 { vertices: [p1, p3, p2] }, &mut hull);
 
     hull
 }
