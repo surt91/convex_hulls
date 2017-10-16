@@ -56,7 +56,7 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
 }
 
 
-use visualization::{header, footer, points, lines};
+use visualization::SVG;
 
 pub fn quickhull_vis(pointset: &[f64]) -> Vec<f64> {
     if pointset.len() < 3*2 {
@@ -94,10 +94,10 @@ fn qh_recursion_vis(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Ve
         .fold(Vec::new(), |mut acc, p| { acc.push(p.0); acc.push(p.1); acc });
 
     let filename = format!("img/quickhull_{:04}.svg", ctr);
-    header(&filename);
-    points(&filename, all, "lightgray");
+    let mut s = SVG::new();
+    s.points(all, "lightgray");
     // points(&filename, pointset, "grey");
-    points(&filename, &left_of, "green");
+    s.points(&left_of, "green");
 
     // if there is none: add b to out and return
     if left_of.len() == 0 {
@@ -111,15 +111,15 @@ fn qh_recursion_vis(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Ve
             out[n-1] = b.1;
         }
 
-        points(&filename, &[b.0, b.1], "red");
+        s.points(&[b.0, b.1], "red");
         for l in all_lines.iter() {
-            lines(&filename, l, "grey");
+            s.lines(l, "grey");
         }
         let l: [f64; 4] = [a.0, a.1, b.0, b.1];
-        lines(&filename, &l, "red");
+        s.lines(&l, "red");
 
-        points(&filename, &out, "black");
-        lines(&filename, &out, "black");
+        s.points(&out, "black");
+        s.lines(&out, "black");
 
     } else {
         // else recurse with the edge (a, q) and (q, b)
@@ -128,20 +128,20 @@ fn qh_recursion_vis(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Ve
             .tuples::<(_, _)>()
             .fold(b, |farthest: (f64, f64), i: (f64, f64)| if cross2d(a, farthest, b) > cross2d(a, i, b) {farthest} else {i});
 
-        points(&filename, &[q.0, q.1], "red");
+        s.points(&[q.0, q.1], "red");
         for l in all_lines.iter() {
-            lines(&filename, l, "grey");
+            s.lines(l, "grey");
         }
         let l: [f64; 4] = [a.0, a.1, b.0, b.1];
-        lines(&filename, &l, "red");
+        s.lines(&l, "red");
         all_lines.push(l);
 
-        points(&filename, &out, "black");
-        lines(&filename, &out, "black");
+        s.points(&out, "black");
+        s.lines(&out, "black");
 
         qh_recursion_vis(&left_of, a, q, out, all, all_lines, ctr);
         qh_recursion_vis(&left_of, q, b, out, all, all_lines, ctr);
     }
 
-    footer(&filename);
+    s.save(&filename);
 }

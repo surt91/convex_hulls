@@ -52,7 +52,7 @@ pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
 }
 
 
-use visualization::{header, footer, points, lines};
+use visualization::SVG;
 
 pub fn jarvis_vis(pointset: &[f64]) -> Vec<f64> {
     let start = (pointset[0], pointset[1]);
@@ -85,14 +85,14 @@ pub fn jarvis_vis(pointset: &[f64]) -> Vec<f64> {
             if orientation >= 0f64 {
                 k += 1;
                 let filename = format!("img/jarvis_{:04}.svg", k);
-                header(&filename);
-                points(&filename, pointset, "grey");
-                points(&filename, &hull, "black");
-                lines(&filename, &hull, "black");
-                lines(&filename, &[p.0, p.1, a.0, a.1], "green");
-                points(&filename, &[p.0, p.1], "green");
-                points(&filename, &[i.0, i.1], "red");
-                footer(&filename);
+                let mut s = SVG::new();
+                s.points(pointset, "grey");
+                s.points(&hull, "black");
+                s.lines(&hull, "black");
+                s.lines(&[p.0, p.1, a.0, a.1], "green");
+                s.points(&[p.0, p.1], "green");
+                s.points(&[i.0, i.1], "red");
+                s.save(&filename);
             }
 
             if orientation > 0f64 {
