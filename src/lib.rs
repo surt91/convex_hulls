@@ -1,4 +1,5 @@
 #![feature(slice_patterns)]
+#![feature(vec_remove_item)]
 #![feature(test)]
 extern crate test;
 
@@ -9,6 +10,9 @@ extern crate itertools;
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod tests3d;
 
 // 2d
 mod primitives;
@@ -23,9 +27,11 @@ mod d3;
 pub mod quickhull3d;
 
 // reexports:
-use akl::akl;
-use andrew::andrew;
-use jarvis::jarvis;
-use quickhull::quickhull;
-use primitives::area;
-use visualization::svg;
+pub use akl::akl;
+pub use andrew::andrew;
+pub use jarvis::jarvis;
+pub use quickhull::quickhull;
+pub use quickhull3d::quickhull3d;
+pub use primitives::area;
+pub use visualization::svg;
+pub use d3::{surface, threejs, Point3,  Facet3};
