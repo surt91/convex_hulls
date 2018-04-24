@@ -36,7 +36,7 @@ pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     let p2 = unique[1];
     let p3 = unique[2];
 
-    println!("all points {:?}", pointset);
+    // println!("all points {:?}", pointset);
 
     let mut ctr = 0;
     let f = Facet3 { vertices: [p1, p2, p3] };
@@ -46,6 +46,7 @@ pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     let f2 = Facet3 { vertices: [p1, p2, q] };
     let f3 = Facet3 { vertices: [p2, p3, q] };
     let f4 = Facet3 { vertices: [p3, p1, q] };
+    let facets = [f1.clone(), f2.clone(), f3.clone(), f4.clone()];
 
     // initial tetrahedron
     hull.push(f1.clone());
@@ -53,16 +54,50 @@ pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     hull.push(f3.clone());
     hull.push(f4.clone());
 
+    let candidates = divide_points_to_facets(&pointset, &facets);
+
+    println!("start 1 {:?}", candidates[1].len());
+    println!("start 2 {:?}", candidates[2].len());
+    println!("start 3 {:?}", candidates[3].len());
+    println!("start 4 {:?}", candidates[4].len());
+
+    // FIXME do not give the whole pointset but disjunct subsets
     println!("1");
-    quickhull3d_recursion(pointset, &f1, &mut hull, pointset, &mut ctr);
+    quickhull3d_recursion(&candidates[1], &f1, &mut hull, pointset, &mut ctr);
     println!("2");
-    quickhull3d_recursion(pointset, &f2, &mut hull, pointset, &mut ctr);
+    quickhull3d_recursion(&candidates[2], &f2, &mut hull, pointset, &mut ctr);
     println!("3");
-    quickhull3d_recursion(pointset, &f3, &mut hull, pointset, &mut ctr);
+    quickhull3d_recursion(&candidates[3], &f3, &mut hull, pointset, &mut ctr);
     println!("4");
-    quickhull3d_recursion(pointset, &f4, &mut hull, pointset, &mut ctr);
+    quickhull3d_recursion(&candidates[4], &f4, &mut hull, pointset, &mut ctr);
 
     hull
+}
+
+fn divide_points_to_facets(pointset: &[Point3], facets: &[Facet3]) -> Vec<Vec<Point3>> {
+    let mut candidates: Vec<Vec<Point3>> = vec![Vec::new(); facets.len() + 1];
+
+    for p in pointset {
+        let mut min_facet = 0;
+        let mut min_distance = 1e10;
+        for (n, f) in facets.iter().enumerate() {
+            // TODO can be precomputed
+            if !f.visible_from(p) {
+                continue
+            }
+
+            let m = f.mid();
+            let normal = f.normal();
+            let d = normal.dot(*p-m);
+            if d < min_distance {
+                min_distance = d;
+                min_facet = n + 1;
+            }
+        }
+        candidates[min_facet].push(p.clone());
+    }
+
+    candidates
 }
 
 fn farthest(facet: &Facet3, candidates: &[Point3]) -> Point3 {
@@ -81,13 +116,24 @@ fn farthest(facet: &Facet3, candidates: &[Point3]) -> Point3 {
         )
 }
 
+fn get_candidates_multiple(facets: &[Facet3], candidates: &[Point3]) -> Vec<Point3> {
+    candidates.iter()
+        .cloned()
+        .filter(|i| facets.iter().any(|f| f.visible_from(i)))
+        .collect()
+}
+
+fn get_candidates(facet: &Facet3, candidates: &[Point3]) -> Vec<Point3> {
+    candidates.iter()
+        .cloned()
+        .filter(|i| facet.visible_from(i))
+        .collect()
+}
+
 fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Facet3>, all_points: &[Point3], ctr: &mut usize) {
     let normal = facet.normal();
     let p = facet.mid();
-    let mut in_front_of: Vec<Point3> = candidates.iter()
-        .cloned()
-        .filter(|i| facet.visible_from(i))
-        .collect();
+    let in_front_of = get_candidates(facet, candidates);
 
     println!("\n#: {:?}", ctr);
     println!("look at: {:?}", facet);
@@ -150,13 +196,22 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
         threejs(&all_points, &out, &q, &in_front_of, &visible_facets, &horizon, &format!("quickhull3d_{}.html", ctr)).expect("io error");
         // threejs(&in_front_of, &out, &horizon, &format!("quickhull3d_{}.html", ctr)).expect("io error");
 
+        // facets generated in this iteration of the recursion
+        let mut new_facets = Vec::new();
         for e in horizon.iter() {
             let f = Facet3 { vertices: [e.vertices[0], e.vertices[1], q] };
-            out.push(f);
+            out.push(f.clone());
+            new_facets.push(f);
         }
-        for e in horizon.iter() {
-            let f = Facet3 { vertices: [e.vertices[0], e.vertices[1], q] };
-            quickhull3d_recursion(&in_front_of, &f, out, all_points, ctr);
+
+        // calculate for every candidate point the nearest facet
+        // this way every point will only occur in one subtree of the recursion
+        // FIXME we are testing far too many points. it we should discard interior points
+        let possible = get_candidates_multiple(&new_facets, &all_points);
+        let candidates = divide_points_to_facets(&possible, &new_facets);
+
+        for (n, f) in new_facets.iter().enumerate() {
+            quickhull3d_recursion(&candidates[n+1], &f, out, all_points, ctr);
         }
     }
 }

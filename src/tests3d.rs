@@ -10,6 +10,7 @@ fn get_test_vector(n: usize) -> Vec<Point3> {
     let seed: &[_] = &[42,];
     let mut rng: StdRng = SeedableRng::from_seed(seed);
     rng.gen_iter::<f64>()
+       .map(|a| (a*100.))
        .take(n * 3)
        .tuples()
        .map(|(x, y, z)| Point3::new(x, y, z))
@@ -114,17 +115,18 @@ fn test_random() {
 }
 
 
-// #[bench]
-// fn bench_quickhull3d_2048(b: &mut Bencher) {
-//     let v = get_test_vector(16);
-//
-//     println!("start");
-//
-//     b.iter(|| quickhull3d(&v));
-//
-//     let hull = quickhull3d(&v);
-//     threejs(&v, &hull, "quickhull3d.html").expect("io error");
-//
-//     assert_eq!(hull.len(), 48);
-//     assert_approx_eq!(surface(&hull), 0.9915082733644154);
-// }
+#[bench]
+fn bench_quickhull3d_2048(b: &mut Bencher) {
+    let v = get_test_vector(80);
+
+    println!("start");
+
+    b.iter(|| quickhull3d(&v));
+
+    let hull = quickhull3d(&v);
+    // threejs(&v, &hull, "quickhull3d.html").expect("io error");
+
+    assert!(is_convex(&hull, &v));
+    assert_eq!(hull.len(), 52);
+    assert_approx_eq!(surface(&hull), 37311.19729514181);
+}
