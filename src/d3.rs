@@ -156,6 +156,7 @@ pub fn threejs(
         \n
         init();\n
         animate();\n
+        screenshot();\n
         \n
         function cylinder(trace, x, y, z, dx, dy, dz, thickness) {{\n
             var length = Math.sqrt(dx*dx + dy*dy + dz*dz);\n
@@ -233,6 +234,9 @@ pub fn threejs(
             // materialDelete = new THREE.MeshPhongMaterial( {{ color: 0xee5555, shininess: 60, side: THREE.DoubleSide }} );\n
             // material = new THREE.MeshPhongMaterial( {{ color: 0xee0000, transparent: true, shininess: 60 }} );\n
             material.shading = THREE.FlatShading;\n
+            materialBack.shading = THREE.FlatShading;\n
+            materialDouble.shading = THREE.FlatShading;\n
+            materialDelete.shading = THREE.FlatShading;\n
             materialTrace = new THREE.MeshPhongMaterial( {{ color: 0x444444 }} );\n
             materialTrace.shading = THREE.SmoothShading;\n
             materialEyepoint = new THREE.MeshPhongMaterial( {{ color: 0xff4444 }} );\n
@@ -265,14 +269,25 @@ pub fn threejs(
             render();\n
         }}\n
         \n
+        function downloadURI(uri, name) {{\n
+            var link = document.createElement(\"a\");\n
+            link.download = name;\n
+            link.href = uri;\n
+            document.body.appendChild(link);\n
+            link.click();\n
+            document.body.removeChild(link);\n
+            delete link;\n
+        }}\n
+        \n
         // call this function from the debug console to create a screenshot\n
         function screenshot() {{\n
             var r = new THREE.WebGLRenderer( {{ alpha: true, antialias: true, preserveDrawingBuffer: true }} );\n
             r.setSize(4096, 4096);\n
-            var c = new THREE.PerspectiveCamera( 75, w / h, 1, 10000 );\n
+            var c = new THREE.PerspectiveCamera( 75, 1, 1, 10000 );\n
             c.position.z = 2;\n
             r.render( scene, c );\n
-            window.open( r.domElement.toDataURL( 'image/png' ), 'screenshot' );\n
+            // window.open( r.domElement.toDataURL( 'image/png' ), 'screenshot' );\n
+            downloadURI(r.domElement.toDataURL( 'image/png' ), '{}.png');\n
         }}\n
         \n
         function render() {{\n
@@ -283,7 +298,8 @@ pub fn threejs(
         }}\n
         </script>\n
         </body>\n
-        </html>\n"
+        </html>\n",
+        filename
     )?;
 
     Ok(())
