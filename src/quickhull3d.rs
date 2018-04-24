@@ -123,6 +123,10 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
     if in_front_of.len() == 0 {
         return
     }
+    // if the facet was removed from out in the meantime, we do not need to test it
+    if !out.contains(facet) {
+        return
+    }
 
     // pay attention to orientation: normal must point outside
     let q = farthest(facet, &in_front_of);
@@ -248,6 +252,10 @@ fn quickhull3d_recursion_vis(candidates: &[Point3], facet: &Facet3, out: &mut Ve
 
     // if there are still candidates continue, else we are finished
     if in_front_of.len() == 0 {
+        return
+    }
+    // if the facet was removed from out in the meantime, we do not need to test it
+    if !out.contains(facet) {
         return
     }
 
