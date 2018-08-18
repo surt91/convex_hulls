@@ -20,6 +20,7 @@ pub mod visualization;
 pub mod andrew;
 pub mod quickhull;
 pub mod jarvis;
+pub mod chan;
 pub mod akl;
 
 // 3d
@@ -30,6 +31,7 @@ pub mod quickhull3d;
 pub use akl::akl;
 pub use andrew::andrew;
 pub use jarvis::jarvis;
+pub use chan::chan;
 pub use quickhull::quickhull;
 pub use quickhull3d::quickhull3d;
 pub use primitives::area;

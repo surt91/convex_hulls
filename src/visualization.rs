@@ -39,7 +39,6 @@ impl SVG {
         }
     }
 
-
     pub fn lines(&mut self, points: &[f64], color: &str) {
         for (a, b) in points.iter()
                             .tuples::<(_, _)>()
@@ -49,6 +48,24 @@ impl SVG {
         }
     }
 
+    pub fn dashed_lines(&mut self, points: &[f64], color: &str) {
+        for (a, b) in points.iter()
+                            .tuples::<(_, _)>()
+                            .tuple_windows::<(_, _)>()
+        {
+            self.buffer.push_str(&format!("<line x1='{}' x2='{}' y1='{}' y2='{}' stroke-dasharray='0.03,0.02' stroke='{}' stroke-width='0.005' />\n", a.0, b.0, a.1, b.1, color));
+        }
+    }
+
+    pub fn polygon(&mut self, points: &[f64], color: &str) {
+        self.buffer.push_str(&format!("<polygon fill='none' points='"));
+        for a in points.iter()
+            .tuples::<(_, _)>()
+        {
+            self.buffer.push_str(&format!("{},{} ", a.0, a.1));
+        }
+        self.buffer.push_str(&format!("' stroke='{}' stroke-width='0.002' />\n", color));
+    }
 }
 
 pub fn svg(pointset: &[f64], hull: &[f64], filename: &str) -> Result<(), io::Error> {

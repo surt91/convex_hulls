@@ -27,13 +27,16 @@ fn test_hull() {
     let hull_andrew = andrew(&p);
     let hull_qh = quickhull(&p);
     let hull_jarvis = jarvis(&p);
+    let hull_chan = chan(&p);
 
     assert_eq!(hull_andrew.len(), 2*4);
     assert_eq!(hull_qh.len(), 2*4);
     assert_eq!(hull_jarvis.len(), 2*4);
+    assert_eq!(hull_chan.len(), 2*4);
     assert_approx_eq!(area(&hull_andrew), expected_area);
     assert_approx_eq!(area(&hull_qh), expected_area);
     assert_approx_eq!(area(&hull_jarvis), expected_area);
+    assert_approx_eq!(area(&hull_chan), expected_area);
 }
 
 #[bench]
