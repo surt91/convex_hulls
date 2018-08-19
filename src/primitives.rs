@@ -63,6 +63,7 @@ pub fn tangent(p: (f64, f64), poly: &Vec<f64>) -> (f64, f64) {
         .chain(poly)
         .chain(iter::once(first))
         .collect();
+    // FIXME the above operation is linear in time, utterly destroying the time complexity of the algorithm :D
 
     let n = poly.len()-1;
     let mut a = 0; // lower
