@@ -116,3 +116,29 @@ fn bench_jarvis_akl_2048(b: &mut Bencher) {
     assert_eq!(hull.len(), 48);
     assert_approx_eq!(area(&hull), 0.9915082733644154);
 }
+
+#[bench]
+fn bench_chan_2048(b: &mut Bencher) {
+    let v = get_test_vector(2048);
+
+    b.iter(|| chan(&v));
+
+    let hull = chan(&v);
+    svg(&v, &hull, "chan.svg").expect("io error");
+
+    assert_eq!(hull.len(), 48);
+    assert_approx_eq!(area(&hull), 0.9915082733644154);
+}
+
+#[bench]
+fn bench_chan_akl_2048(b: &mut Bencher) {
+    let v = get_test_vector(2048);
+
+    b.iter(|| chan(&akl(&v)));
+
+    let hull = chan(&akl(&v));
+    svg(&v, &hull, "chan_akl.svg").expect("io error");
+
+    assert_eq!(hull.len(), 48);
+    assert_approx_eq!(area(&hull), 0.9915082733644154);
+}
