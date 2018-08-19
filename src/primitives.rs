@@ -33,21 +33,20 @@ pub fn area(coord: &[f64]) -> f64 {
          .fold(0f64, |sum, ((x1, y1), (x2, y2))| sum + (y1+y2) * (x1-x2)) / 2.
 }
 
-
-fn orientation(o: (f64, f64), a: (f64, f64), b: (f64, f64)) -> i8 {
-    match -cross2d(o, a, b) {
-        x if x > 0. => -1,  // CW
-        x if x < 0. => 1,   // CCW
-        _ => 0,             // Collinear
-    }
+fn cw(o: (f64, f64), a: (f64, f64), b: (f64, f64)) -> bool {
+    return cross2d(o, a, b) > 0.;
+}
+fn ccw(o: (f64, f64), a: (f64, f64), b: (f64, f64)) -> bool {
+    return cross2d(o, a, b) < 0.;
 }
 
-// cmp: https://github.com/ypranay/Convex-Hull/blob/master/ChansAlgorithmForConvexHull.cpp
+// cmp: https://github.com/felipesfaria/ch_chan/blob/master/ch_chan/ch_chan.cpp
 pub fn tangent(p: (f64, f64), poly: &Vec<f64>) -> (f64, f64) {
     // search for the tangent through `p` of the polygon `poly`
     // use a clever binary search
     // all points q before the tangent t are ptq oriented ccw and after cw
 
+    // special case of single points
     if poly.len() == 2 {
         return (poly[0], poly[1]);
     }
@@ -65,25 +64,50 @@ pub fn tangent(p: (f64, f64), poly: &Vec<f64>) -> (f64, f64) {
         .chain(iter::once(first))
         .collect();
 
-    let n = poly.len();
-    let mut l = 0;
-    let mut r = n;
-    let mut l_before = orientation(p, poly[0], poly[n-1]);
-    let mut l_after = orientation(p, poly[0], poly[(l + 1) % n]);
-    while l < r {
-        let c = (l + r)/2;
-        let c_before = orientation(p, poly[c], poly[(c - 1) % n]);
-        let c_after = orientation(p, poly[c], poly[(c + 1) % n]);
-        let c_side = orientation(p, poly[l], poly[c]);
-        if c_before >= 0 && c_after >= 0 {
-            return poly[c];
-        } else if ((c_side > 0) && (l_after < 0 || l_before == l_after)) || (c_side < 0 && c_before < 0) {
-            r = c;
-        } else {
-            l = c + 1 ;
-        }
-        l_before = -c_after;
-        l_after = orientation(p, poly[l], poly[(l + 1) % n]);
+    let n = poly.len()-1;
+    let mut a = 0; // lower
+    let mut b = n; // upper
+    let mut c;     // mid
+    let mut ccw_a;
+    let mut cw_c;
+
+    // rightmost tangent = maximum for the isLeft() ordering
+    // test if poly[0] is a local maximum
+    if ccw(p, poly[1], poly[0]) && !cw(p, poly[n-1], poly[0]) {
+        return poly[0];
     }
-    return poly[l];
+
+    loop {
+        c = (a + b) / 2;
+        cw_c = ccw(p, poly[c+1], poly[c]);
+        // is c the tangent?
+        if cw_c && !cw(p, poly[c-1], poly[c]) {
+            return poly[c];
+        }
+
+        // continue with the binary search
+        ccw_a = cw(p, poly[a+1], poly[a]);
+        if ccw_a {
+            if cw_c {
+                b = c;
+            } else {
+                if cw(p, poly[a], poly[c]) {
+                    b = c;
+                } else {
+                    a = c;
+                }
+            }
+        }
+        else {
+            if !cw_c {
+                a = c;
+            } else {
+                if ccw(p, poly[a], poly[c]) {
+                    b = c;
+                } else {
+                    a = c;
+                }
+            }
+        }
+    }
 }
