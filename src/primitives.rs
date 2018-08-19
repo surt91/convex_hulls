@@ -41,29 +41,27 @@ fn ccw(o: (f64, f64), a: (f64, f64), b: (f64, f64)) -> bool {
 }
 
 // cmp: https://github.com/felipesfaria/ch_chan/blob/master/ch_chan/ch_chan.cpp
-pub fn tangent(p: (f64, f64), poly: &Vec<f64>) -> (f64, f64) {
+pub fn tangent(p: (f64, f64), poly: &mut Vec<(f64, f64)>) -> (f64, f64) {
     // search for the tangent through `p` of the polygon `poly`
     // use a clever binary search
     // all points q before the tangent t are ptq oriented ccw and after cw
 
     // special case of single points
     if poly.len() == 2 {
-        return (poly[0], poly[1]);
+        return poly[0];
     }
 
-    // do not find yourself
-    let mut poly = poly.iter()
-        .cloned()
-        .tuples::<(f64, f64)>()
-        .filter(|&q| q != p);
-
-    // repeat the first point in the end
-    let first = poly.next().unwrap();
-    let poly: Vec<(f64, f64)> = iter::once(first)
-        .chain(poly)
-        .chain(iter::once(first))
-        .collect();
-    // FIXME the above operation is linear in time, utterly destroying the time complexity of the algorithm :D
+    // we have a problem if p is the first point of the hull for some reason
+    // in that case I just reorder in O(N), which hopefully happens seldom
+    // enough to not influence the runtime too bad
+    if poly[0] == p {
+        let n = poly.len();
+        let first = poly[1];
+        for i in 0..(n-1) {
+            poly[i] = poly[i+1];
+        }
+        poly[n-1] = first;
+    }
 
     let n = poly.len()-1;
     let mut a = 0; // lower
@@ -80,6 +78,12 @@ pub fn tangent(p: (f64, f64), poly: &Vec<f64>) -> (f64, f64) {
 
     loop {
         c = (a + b) / 2;
+
+        // if we encounter our selves, the next point is a tangent (due to convexivity)
+        if poly[c] == p {
+            return poly[c+1];
+        }
+
         cw_c = ccw(p, poly[c+1], poly[c]);
         // is c the tangent?
         if cw_c && !cw(p, poly[c-1], poly[c]) {

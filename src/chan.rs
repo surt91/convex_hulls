@@ -1,3 +1,4 @@
+use std::iter;
 use itertools::Itertools;
 
 use primitives::{cross2d, tangent, dist2};
@@ -25,8 +26,17 @@ pub fn chan(pointset: &[f64]) -> Vec<f64> {
         let subsets: Vec<_> = pointset.chunks(m*2)
             .collect();
         // calculate the subhulls with andrews
-        let subhulls: Vec<_> = subsets.iter()
-            .map(|s| andrew(s))
+        // also make them cyclic and partition into tuples
+        let mut subhulls: Vec<_> = subsets.iter()
+            .map(|s| {
+                let hull: Vec<_> = andrew(s);
+                let first = (hull[0], hull[1]);
+                hull.iter()
+                    .cloned()
+                    .tuples::<(_, _)>()
+                    .chain(iter::once(first))
+                    .collect()
+            })
             .collect();
 
         let mut hull = Vec::new();
@@ -37,7 +47,7 @@ pub fn chan(pointset: &[f64]) -> Vec<f64> {
 
         for _ in 0..m {
             let mut all_t: Vec<f64> = Vec::new();
-            for s in &subhulls {
+            for s in &mut subhulls {
                 let a = (hull[hull.len()-2], hull[hull.len()-1]);
                 let t = tangent(a, s);
 
@@ -91,14 +101,24 @@ pub fn chan_vis(pointset: &[f64]) -> Vec<f64> {
         let subsets: Vec<_> = pointset.chunks(m*2)
             .collect();
         // calculate the subhulls with andrews
-        let subhulls: Vec<_> = subsets.iter()
-            .map(|s| andrew(s))
+        // also make them cyclic and partition into tuples
+        let mut subhulls: Vec<Vec<_>> = subsets.iter()
+            .map(|s| {
+                let hull: Vec<_> = andrew(s);
+                let first = (hull[0], hull[1]);
+                hull.iter()
+                    .cloned()
+                    .tuples::<(_, _)>()
+                    .chain(iter::once(first))
+                    .collect()
+            })
             .collect();
 
         let filename = format!("img/chan_{:04}.svg", g);
         let mut s = SVG::new();
         s.points(pointset, "grey");
         for h in subhulls.clone() {
+            let h: Vec<f64> = h.iter().flat_map(|tup| iter::once(tup.0).chain(iter::once(tup.1))).collect();
             s.polygon(&h, "grey");
         }
         s.save(&filename);
@@ -113,7 +133,7 @@ pub fn chan_vis(pointset: &[f64]) -> Vec<f64> {
 
         for _ in 0..m {
             let mut all_t: Vec<f64> = Vec::new();
-            for s in &subhulls {
+            for s in &mut subhulls {
                 let a = (hull[hull.len()-2], hull[hull.len()-1]);
                 let t = tangent(a, s);
 
@@ -135,6 +155,7 @@ pub fn chan_vis(pointset: &[f64]) -> Vec<f64> {
             let mut s = SVG::new();
             s.points(pointset, "grey");
             for h in subhulls.clone() {
+                let h: Vec<f64> = h.iter().flat_map(|tup| iter::once(tup.0).chain(iter::once(tup.1))).collect();
                 s.polygon(&h, "grey");
             }
             s.lines(&hull, "black");
@@ -152,6 +173,7 @@ pub fn chan_vis(pointset: &[f64]) -> Vec<f64> {
                 let mut s = SVG::new();
                 s.points(pointset, "grey");
                 for h in subhulls.clone() {
+                    let h: Vec<f64> = h.iter().flat_map(|tup| iter::once(tup.0).chain(iter::once(tup.1))).collect();
                     s.polygon(&h, "grey");
                 }
                 s.polygon(&hull, "black");
