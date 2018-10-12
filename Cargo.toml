@@ -7,3 +7,7 @@ authors = ["Hendrik Schawe <hendrik.schawe@uni-oldenburg.de>"]
 itertools = "*"
 assert_approx_eq = "*"
 rand = "*"
+
+[features]
+default = []
+visual = []

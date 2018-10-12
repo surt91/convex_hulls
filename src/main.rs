@@ -28,12 +28,12 @@ fn get_test_vector(n: usize) -> Vec<f64> {
 
 fn main() {
     let v = get_test_vector(10);
-    convex_hulls::jarvis::jarvis_vis(&v);
-    convex_hulls::quickhull::quickhull_vis(&v);
-    convex_hulls::andrew::andrew_vis(&v);
+    convex_hulls::jarvis::jarvis(&v);
+    convex_hulls::quickhull::quickhull(&v);
+    convex_hulls::andrew::andrew(&v);
     let v = get_test_vector(27);
-    convex_hulls::chan::chan_vis(&v);
+    convex_hulls::chan::chan(&v);
 
     let v = get_test_vector_3d(80);
-    convex_hulls::quickhull3d::quickhull3d_vis(&v);
+    convex_hulls::quickhull3d::quickhull3d(&v);
 }

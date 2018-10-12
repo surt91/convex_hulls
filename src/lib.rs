@@ -3,6 +3,7 @@
 #![feature(test)]
 extern crate test;
 
+#[cfg(test)]
 #[macro_use]
 extern crate assert_approx_eq;
 
@@ -14,9 +15,11 @@ mod tests;
 #[cfg(test)]
 mod tests3d;
 
+#[cfg(visual)]
+pub mod visualization;
+
 // 2d
 mod primitives;
-pub mod visualization;
 pub mod andrew;
 pub mod quickhull;
 pub mod jarvis;
@@ -35,5 +38,6 @@ pub use chan::chan;
 pub use quickhull::quickhull;
 pub use quickhull3d::quickhull3d;
 pub use primitives::area;
-pub use visualization::svg;
-pub use d3::{surface, threejs, Point3,  Facet3};
+pub use d3::{surface, Point3, Facet3};
+#[cfg(visual)] pub use d3::threejs;
+#[cfg(visual)] pub use visualization::svg;

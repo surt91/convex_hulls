@@ -1,4 +1,3 @@
-use std::iter;
 use itertools::Itertools;
 
 pub fn side(p1: (f64, f64), p2: (f64, f64), p: (f64, f64)) -> f64 {

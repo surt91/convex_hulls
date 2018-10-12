@@ -1,4 +1,7 @@
-use d3::{Point3, Facet3, Edge3, surface, threejs};
+use d3::{Point3, Facet3, Edge3};
+
+#[cfg(visual)]
+use d3::threejs;
 
 fn divide_points_to_facets(pointset: &[Point3], facets: &[Facet3]) -> Vec<Vec<Point3>> {
     let mut candidates: Vec<Vec<Point3>> = vec![Vec::new(); facets.len() + 1];
@@ -56,6 +59,7 @@ fn get_candidates(facet: &Facet3, candidates: &[Point3]) -> Vec<Point3> {
         .collect()
 }
 
+#[cfg(not(visual))]
 pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     // get a facet with all points on the hull
     let start = pointset[0];
@@ -116,6 +120,7 @@ pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     hull
 }
 
+#[cfg(not(visual))]
 fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Facet3>, all_points: &[Point3]) {
     let in_front_of = get_candidates(facet, candidates);
 
@@ -185,7 +190,8 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
     }
 }
 
-pub fn quickhull3d_vis(pointset: &[Point3]) -> Vec<Facet3> {
+#[cfg(visual)]
+pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     // get a facet with all points on the hull
     let start = pointset[0];
     // FIXME: we need to ensure that all 3 points are distinct
@@ -247,7 +253,8 @@ pub fn quickhull3d_vis(pointset: &[Point3]) -> Vec<Facet3> {
     hull
 }
 
-fn quickhull3d_recursion_vis(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Facet3>, all_points: &[Point3], ctr: &mut u32) {
+#[cfg(visual)]
+fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Facet3>, all_points: &[Point3], ctr: &mut u32) {
     let in_front_of = get_candidates(facet, candidates);
 
     // if there are still candidates continue, else we are finished

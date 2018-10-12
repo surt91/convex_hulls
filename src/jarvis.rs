@@ -2,6 +2,7 @@ use itertools::Itertools;
 
 use primitives::{cross2d, dist2};
 
+#[cfg(not(visual))]
 pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
     if pointset.len() < 3*2 {
         return pointset.to_vec()
@@ -51,10 +52,11 @@ pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
     hull
 }
 
-
+#[cfg(visual)]
 use visualization::SVG;
 
-pub fn jarvis_vis(pointset: &[f64]) -> Vec<f64> {
+#[cfg(visual)]
+pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
     let start = (pointset[0], pointset[1]);
     let min = pointset.iter()
         .tuples::<(_, _)>()

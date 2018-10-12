@@ -1,7 +1,5 @@
 use std::ops::{Add, Sub, DivAssign, Div};
 
-use itertools::Itertools;
-
 const EPS: f64 = 1e-4;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -117,11 +115,12 @@ pub fn surface(facets: &[Facet3]) -> f64 {
     facets.iter().map(|f| f.surface()).sum()
 }
 
-use std::io;
-use std::io::prelude::*;
-use std::fs::File;
-use std::path::Path;
+#[cfg(visual)] use std::io;
+#[cfg(visual)] use std::io::prelude::*;
+#[cfg(visual)] use std::fs::File;
+#[cfg(visual)] use std::path::Path;
 
+#[cfg(visual)]
 pub fn threejs(
     points: &[Point3],
     facets: &[Facet3],
@@ -305,6 +304,7 @@ pub fn threejs(
     Ok(())
 }
 
+#[cfg(visual)]
 fn print_point(point: &Point3, part: &str, r: u32) -> String {
     format!(
         "var sphere = new THREE.SphereGeometry( {} );\n
@@ -318,6 +318,7 @@ fn print_point(point: &Point3, part: &str, r: u32) -> String {
     )
 }
 
+#[cfg(visual)]
 fn print_facet(facet: &Facet3, part: &str, num_vertices: usize) -> String {
     let a = facet.vertices[0];
     let b = facet.vertices[1];
@@ -333,6 +334,7 @@ fn print_facet(facet: &Facet3, part: &str, num_vertices: usize) -> String {
     )
 }
 
+#[cfg(visual)]
 fn print_edge(edge: &Edge3) -> String {
     let a = edge.vertices[0];
     let b = edge.vertices[1];

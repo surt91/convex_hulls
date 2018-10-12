@@ -6,6 +6,7 @@ use primitives::{cross2d, tangent, dist2};
 use super::andrew::andrew;
 
 // points stores a contiguous array of 2N floats in the format x1, y1, x2, y2, ...
+#[cfg(not(visual))]
 pub fn chan(pointset: &[f64]) -> Vec<f64> {
     if pointset.len() < 3*2 {
         return pointset.to_vec()
@@ -76,10 +77,12 @@ pub fn chan(pointset: &[f64]) -> Vec<f64> {
     }
 }
 
+#[cfg(visual)]
 use visualization::SVG;
 
 // points stores a contiguous array of 2N floats in the format x1, y1, x2, y2, ...
-pub fn chan_vis(pointset: &[f64]) -> Vec<f64> {
+#[cfg(visual)]
+pub fn chan(pointset: &[f64]) -> Vec<f64> {
     if pointset.len() < 3*2 {
         return pointset.to_vec()
     }
