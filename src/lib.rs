@@ -15,7 +15,7 @@ mod tests;
 #[cfg(test)]
 mod tests3d;
 
-#[cfg(visual)]
+#[cfg(feature = "visual")]
 pub mod visualization;
 
 // 2d
@@ -39,5 +39,5 @@ pub use quickhull::quickhull;
 pub use quickhull3d::quickhull3d;
 pub use primitives::area;
 pub use d3::{surface, Point3, Facet3};
-#[cfg(visual)] pub use d3::threejs;
-#[cfg(visual)] pub use visualization::svg;
+#[cfg(feature = "visual")] pub use d3::threejs;
+#[cfg(feature = "visual")] pub use visualization::svg;

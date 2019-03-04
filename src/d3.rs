@@ -115,12 +115,12 @@ pub fn surface(facets: &[Facet3]) -> f64 {
     facets.iter().map(|f| f.surface()).sum()
 }
 
-#[cfg(visual)] use std::io;
-#[cfg(visual)] use std::io::prelude::*;
-#[cfg(visual)] use std::fs::File;
-#[cfg(visual)] use std::path::Path;
+#[cfg(feature = "visual")] use std::io;
+#[cfg(feature = "visual")] use std::io::prelude::*;
+#[cfg(feature = "visual")] use std::fs::File;
+#[cfg(feature = "visual")] use std::path::Path;
 
-#[cfg(visual)]
+#[cfg(feature = "visual")]
 pub fn threejs(
     points: &[Point3],
     facets: &[Facet3],
@@ -304,7 +304,7 @@ pub fn threejs(
     Ok(())
 }
 
-#[cfg(visual)]
+#[cfg(feature = "visual")]
 fn print_point(point: &Point3, part: &str, r: u32) -> String {
     format!(
         "var sphere = new THREE.SphereGeometry( {} );\n
@@ -318,7 +318,7 @@ fn print_point(point: &Point3, part: &str, r: u32) -> String {
     )
 }
 
-#[cfg(visual)]
+#[cfg(feature = "visual")]
 fn print_facet(facet: &Facet3, part: &str, num_vertices: usize) -> String {
     let a = facet.vertices[0];
     let b = facet.vertices[1];
@@ -334,7 +334,7 @@ fn print_facet(facet: &Facet3, part: &str, num_vertices: usize) -> String {
     )
 }
 
-#[cfg(visual)]
+#[cfg(feature = "visual")]
 fn print_edge(edge: &Edge3) -> String {
     let a = edge.vertices[0];
     let b = edge.vertices[1];

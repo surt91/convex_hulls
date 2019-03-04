@@ -1,6 +1,6 @@
 use d3::{Point3, Facet3, Edge3};
 
-#[cfg(visual)]
+#[cfg(feature = "visual")]
 use d3::threejs;
 
 fn divide_points_to_facets(pointset: &[Point3], facets: &[Facet3]) -> Vec<Vec<Point3>> {
@@ -59,7 +59,7 @@ fn get_candidates(facet: &Facet3, candidates: &[Point3]) -> Vec<Point3> {
         .collect()
 }
 
-#[cfg(not(visual))]
+#[cfg(not(feature = "visual"))]
 pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     // get a facet with all points on the hull
     let start = pointset[0];
@@ -120,7 +120,7 @@ pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     hull
 }
 
-#[cfg(not(visual))]
+#[cfg(not(feature = "visual"))]
 fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Facet3>, all_points: &[Point3]) {
     let in_front_of = get_candidates(facet, candidates);
 
@@ -190,7 +190,7 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
     }
 }
 
-#[cfg(visual)]
+#[cfg(feature = "visual")]
 pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     // get a facet with all points on the hull
     let start = pointset[0];
@@ -245,15 +245,15 @@ pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     let mut ctr = 0;
 
     // FIXME do not give the whole pointset but disjunct subsets
-    quickhull3d_recursion_vis(&candidates[1], &f1, &mut hull, pointset, &mut ctr);
-    quickhull3d_recursion_vis(&candidates[2], &f2, &mut hull, pointset, &mut ctr);
-    quickhull3d_recursion_vis(&candidates[3], &f3, &mut hull, pointset, &mut ctr);
-    quickhull3d_recursion_vis(&candidates[4], &f4, &mut hull, pointset, &mut ctr);
+    quickhull3d_recursion(&candidates[1], &f1, &mut hull, pointset, &mut ctr);
+    quickhull3d_recursion(&candidates[2], &f2, &mut hull, pointset, &mut ctr);
+    quickhull3d_recursion(&candidates[3], &f3, &mut hull, pointset, &mut ctr);
+    quickhull3d_recursion(&candidates[4], &f4, &mut hull, pointset, &mut ctr);
 
     hull
 }
 
-#[cfg(visual)]
+#[cfg(feature = "visual")]
 fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Facet3>, all_points: &[Point3], ctr: &mut u32) {
     let in_front_of = get_candidates(facet, candidates);
 
@@ -322,6 +322,6 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
     let candidates = divide_points_to_facets(&possible, &new_facets);
 
     for (n, f) in new_facets.iter().enumerate() {
-        quickhull3d_recursion_vis(&candidates[n+1], &f, out, all_points, ctr);
+        quickhull3d_recursion(&candidates[n+1], &f, out, all_points, ctr);
     }
 }

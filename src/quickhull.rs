@@ -4,7 +4,7 @@ use primitives::cross2d;
 
 // TODO: rayon parallel version
 
-#[cfg(not(visual))]
+#[cfg(not(feature = "visual"))]
 pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
     if pointset.len() < 3*2 {
         return pointset.to_vec()
@@ -27,7 +27,7 @@ pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
     hull
 }
 
-#[cfg(not(visual))]
+#[cfg(not(feature = "visual"))]
 fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f64>) {
     // find left and farthest away point q
     let left_of: Vec<f64> = pointset.iter()
@@ -59,10 +59,10 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
     }
 }
 
-#[cfg(visual)]
+#[cfg(feature = "visual")]
 use visualization::SVG;
 
-#[cfg(visual)]
+#[cfg(feature = "visual")]
 pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
     if pointset.len() < 3*2 {
         return pointset.to_vec()
@@ -83,13 +83,13 @@ pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
     hull.push(min.0);
     hull.push(min.1);
 
-    qh_recursion_vis(pointset, min, max, &mut hull, pointset, &mut all_lines, &mut ctr);
-    qh_recursion_vis(pointset, max, min, &mut hull, pointset, &mut all_lines, &mut ctr);
+    qh_recursion(pointset, min, max, &mut hull, pointset, &mut all_lines, &mut ctr);
+    qh_recursion(pointset, max, min, &mut hull, pointset, &mut all_lines, &mut ctr);
 
     hull
 }
 
-#[cfg(visual)]
+#[cfg(feature = "visual")]
 fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f64>, all: &[f64], all_lines: &mut Vec<[f64; 4]>, ctr: &mut u32) {
     *ctr += 1;
     // find left and farthest away point q
@@ -145,8 +145,8 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
         s.points(&out, "black");
         s.lines(&out, "black");
 
-        qh_recursion_vis(&left_of, a, q, out, all, all_lines, ctr);
-        qh_recursion_vis(&left_of, q, b, out, all, all_lines, ctr);
+        qh_recursion(&left_of, a, q, out, all, all_lines, ctr);
+        qh_recursion(&left_of, q, b, out, all, all_lines, ctr);
     }
 
     s.save(&filename);
