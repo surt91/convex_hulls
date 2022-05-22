@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use primitives::{cross2d, dist2};
+use crate::primitives::{cross2d, dist2};
 
 #[cfg(not(feature = "visual"))]
 pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
@@ -53,7 +53,7 @@ pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
 }
 
 #[cfg(feature = "visual")]
-use visualization::SVG;
+use crate::visualization::SVG;
 
 #[cfg(feature = "visual")]
 pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
@@ -115,4 +115,30 @@ pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
     }
 
     hull
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{util::tests::{check_2048, check_square}, akl};
+
+    #[test]
+    fn jarvis_square() {
+        check_square(jarvis);
+    }
+
+    #[test]
+    fn jarvis_2048() {
+        check_2048(jarvis, "jarvis");
+    }
+
+    #[test]
+    fn jarvis_akl_square() {
+        check_square(|v| jarvis(&akl(v)));
+    }
+
+    #[test]
+    fn jarvis_akl_2048() {
+        check_2048(|v| jarvis(&akl(v)), "jarvis_akl");
+    }
 }

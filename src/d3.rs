@@ -115,6 +115,19 @@ pub fn surface(facets: &[Facet3]) -> f64 {
     facets.iter().map(|f| f.surface()).sum()
 }
 
+/// check that all points are behind every facet (or on)
+pub fn is_convex(facets: &[Facet3], points: &[Point3]) -> bool {
+    for f in facets {
+        for p in points {
+            if f.visible_from(p) {
+                return false
+            }
+        }
+    }
+
+    true
+}
+
 #[cfg(feature = "visual")] use std::io;
 #[cfg(feature = "visual")] use std::io::prelude::*;
 #[cfg(feature = "visual")] use std::fs::File;

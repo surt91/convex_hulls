@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use primitives::point_in_octagon;
+use crate::primitives::point_in_octagon;
 
 pub fn akl(pointset: &[f64]) -> Vec<f64> {
     let start = (pointset[0], pointset[1]);

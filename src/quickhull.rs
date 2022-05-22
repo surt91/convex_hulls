@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use primitives::cross2d;
+use crate::primitives::cross2d;
 
 // TODO: rayon parallel version
 
@@ -60,7 +60,7 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
 }
 
 #[cfg(feature = "visual")]
-use visualization::SVG;
+use crate::visualization::SVG;
 
 #[cfg(feature = "visual")]
 pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
@@ -150,4 +150,30 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
     }
 
     s.save(&filename);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{util::tests::{check_2048, check_square}, akl};
+
+    #[test]
+    fn quickhull_square() {
+        check_square(quickhull);
+    }
+
+    #[test]
+    fn quickhull_2048() {
+        check_2048(quickhull, "quickhull");
+    }
+
+    #[test]
+    fn quickhull_akl_square() {
+        check_square(|v| quickhull(&akl(v)));
+    }
+
+    #[test]
+    fn quickhull_akl_2048() {
+        check_2048(|v| quickhull(&akl(v)), "quickhull_akl");
+    }
 }

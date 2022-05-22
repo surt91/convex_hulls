@@ -1,7 +1,7 @@
 use std::iter;
 use itertools::Itertools;
 
-use primitives::{cross2d, tangent, dist2};
+use crate::primitives::{cross2d, tangent, dist2};
 
 use super::andrew::andrew;
 
@@ -78,7 +78,7 @@ pub fn chan(pointset: &[f64]) -> Vec<f64> {
 }
 
 #[cfg(feature = "visual")]
-use visualization::SVG;
+use crate::visualization::SVG;
 
 // points stores a contiguous array of 2N floats in the format x1, y1, x2, y2, ...
 #[cfg(feature = "visual")]
@@ -190,5 +190,31 @@ pub fn chan(pointset: &[f64]) -> Vec<f64> {
         }
         m *= m;
         hull.clear();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{util::tests::{check_2048, check_square}, akl};
+
+    #[test]
+    fn chan_square() {
+        check_square(chan);
+    }
+
+    #[test]
+    fn chan_2048() {
+        check_2048(chan, "chan");
+    }
+
+    #[test]
+    fn chan_akl_square() {
+        check_square(|v| chan(&akl(v)));
+    }
+
+    #[test]
+    fn chan_akl_2048() {
+        check_2048(|v| chan(&akl(v)), "chan_akl");
     }
 }

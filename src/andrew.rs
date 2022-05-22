@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use std::cmp::Ordering::{Less, Equal};
 
-use primitives::cross2d;
+use crate::primitives::cross2d;
 
 // points stores a contiguous array of 2N floats in the format x1, y1, x2, y2, ...
 #[cfg(not(feature = "visual"))]
@@ -57,7 +57,7 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
 }
 
 #[cfg(feature = "visual")]
-use visualization::SVG;
+use crate::visualization::SVG;
 
 // points stores a contiguous array of 2N floats in the format x1, y1, x2, y2, ...
 #[cfg(feature = "visual")]
@@ -130,4 +130,30 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
     hull.pop();
 
     hull
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{util::tests::{check_2048, check_square}, akl};
+
+    #[test]
+    fn andrew_square() {
+        check_square(andrew);
+    }
+
+    #[test]
+    fn andrew_2048() {
+        check_2048(andrew, "andrew");
+    }
+
+    #[test]
+    fn andrew_akl_square() {
+        check_square(|v| andrew(&akl(v)));
+    }
+
+    #[test]
+    fn andrew_akl_2048() {
+        check_2048(|v| andrew(&akl(v)), "andrew_akl");
+    }
 }

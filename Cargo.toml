@@ -2,11 +2,19 @@
 name = "convex_hulls"
 version = "0.1.0"
 authors = ["Hendrik Schawe <hendrik.schawe@uni-oldenburg.de>"]
+edition = "2021"
 
 [dependencies]
-itertools = "*"
-assert_approx_eq = "*"
-rand = "*"
+itertools = "0.10"
+assert_approx_eq = "1.0"
+rand = "0.3"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "benchmark"
+harness = false
 
 [features]
 default = []

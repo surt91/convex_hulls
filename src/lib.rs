@@ -1,20 +1,8 @@
-#![feature(test)]
-extern crate test;
-
-#[cfg(test)]
-#[macro_use]
-extern crate assert_approx_eq;
-
-extern crate itertools;
-
-#[cfg(test)]
-mod tests;
-
-#[cfg(test)]
-mod tests3d;
+pub mod util;
 
 #[cfg(feature = "visual")]
 pub mod visualization;
+
 
 // 2d
 mod primitives;

@@ -1,7 +1,7 @@
-use d3::{Point3, Facet3, Edge3};
+use crate::d3::{Point3, Facet3, Edge3};
 
 #[cfg(feature = "visual")]
-use d3::threejs;
+use crate::d3::threejs;
 
 fn divide_points_to_facets(pointset: &[Point3], facets: &[Facet3]) -> Vec<Vec<Point3>> {
     let mut candidates: Vec<Vec<Point3>> = vec![Vec::new(); facets.len() + 1];
@@ -294,7 +294,7 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
         all_edges.push(Edge3 { vertices: [v1, v2] });
         all_edges.push(Edge3 { vertices: [v2, v3] });
         all_edges.push(Edge3 { vertices: [v3, v1] });
-        out.remove_item(f);
+        out.retain(|x| x != f);
     }
 
     let mut horizon: Vec<Edge3> = Vec::new();
@@ -323,5 +323,26 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
 
     for (n, f) in new_facets.iter().enumerate() {
         quickhull3d_recursion(&candidates[n+1], &f, out, all_points, ctr);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::util::tests::{check_3d_80, check_cube, check_simple_cube};
+
+    #[test]
+    fn quickhull3d_simple_cube() {
+        check_simple_cube(quickhull3d);
+    }
+
+    #[test]
+    fn quickhull3d_cube() {
+        check_cube(quickhull3d);
+    }
+
+    #[test]
+    fn quickhull3d_80() {
+        check_3d_80(quickhull3d, "quickhull3d");
     }
 }
