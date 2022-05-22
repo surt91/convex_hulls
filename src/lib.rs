@@ -1,5 +1,3 @@
-#![feature(slice_patterns)]
-#![feature(vec_remove_item)]
 #![feature(test)]
 extern crate test;
 

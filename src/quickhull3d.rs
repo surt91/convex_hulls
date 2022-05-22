@@ -161,7 +161,7 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
         all_edges.push(Edge3 { vertices: [v1, v2] });
         all_edges.push(Edge3 { vertices: [v2, v3] });
         all_edges.push(Edge3 { vertices: [v3, v1] });
-        out.remove_item(f);
+        out.retain(|x| x != f);
     }
 
     let mut horizon: Vec<Edge3> = Vec::new();
