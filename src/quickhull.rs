@@ -80,8 +80,6 @@ pub fn quickhull(pointset: &[f64]) -> Vec<f64> {
     let mut hull: Vec<f64> = Vec::new();
     let mut ctr = 0;
     let mut all_lines: Vec<[f64; 4]> = Vec::new();
-    hull.push(min.0);
-    hull.push(min.1);
 
     qh_recursion(pointset, min, max, &mut hull, pointset, &mut all_lines, &mut ctr);
     qh_recursion(pointset, max, min, &mut hull, pointset, &mut all_lines, &mut ctr);
