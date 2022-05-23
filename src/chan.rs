@@ -124,7 +124,7 @@ pub fn chan(pointset: &[f64]) -> Vec<f64> {
             let h: Vec<f64> = h.iter().flat_map(|tup| iter::once(tup.0).chain(iter::once(tup.1))).collect();
             s.polygon(&h, "grey");
         }
-        s.save(&filename);
+        s.save(&filename).expect("io error");
 
         g += 1;
 
@@ -168,7 +168,7 @@ pub fn chan(pointset: &[f64]) -> Vec<f64> {
             s.points(&all_t, "green");
             s.points(&hull, "black");
             s.points(&[q.0, q.1], "red");
-            s.save(&filename);
+            s.save(&filename).expect("io error");
             g += 1;
 
             if q == min {
@@ -181,7 +181,7 @@ pub fn chan(pointset: &[f64]) -> Vec<f64> {
                 }
                 s.polygon(&hull, "black");
                 s.points(&hull, "black");
-                s.save(&filename);
+                s.save(&filename).expect("io error");
 
                 return hull;
             }

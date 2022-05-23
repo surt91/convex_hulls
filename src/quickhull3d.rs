@@ -23,7 +23,7 @@ fn divide_points_to_facets(pointset: &[Point3], facets: &[Facet3]) -> Vec<Vec<Po
                 min_facet = n + 1;
             }
         }
-        candidates[min_facet].push(p.clone());
+        candidates[min_facet].push(*p);
     }
 
     candidates
@@ -78,13 +78,13 @@ pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     let mut hull: Vec<Facet3> = Vec::new();
 
     let mut unique: Vec<Point3> = Vec::new();
-    'outer: for i in 0..extrema.len() {
+    'outer: for i in &extrema {
         for j in &unique {
-            if *j == extrema[i] {
+            if *j == *i {
                 continue 'outer;
             }
         }
-        unique.push(extrema[i]);
+        unique.push(*i);
     }
     if unique.len() < 3 {
         panic!();
@@ -109,7 +109,7 @@ pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     hull.push(f3.clone());
     hull.push(f4.clone());
 
-    let candidates = divide_points_to_facets(&pointset, &facets);
+    let candidates = divide_points_to_facets(pointset, &facets);
 
     // FIXME do not give the whole pointset but disjunct subsets
     quickhull3d_recursion(&candidates[1], &f1, &mut hull, pointset);
@@ -125,7 +125,7 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
     let in_front_of = get_candidates(facet, candidates);
 
     // if there are still candidates continue, else we are finished
-    if in_front_of.len() == 0 {
+    if in_front_of.is_empty() {
         return
     }
     // if the facet was removed from out in the meantime, we do not need to test it
@@ -182,11 +182,11 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
     // calculate for every candidate point the nearest facet
     // this way every point will only occur in one subtree of the recursion
     // FIXME we are testing far too many points. it we should discard interior points
-    let possible = get_candidates_multiple(&new_facets, &all_points);
+    let possible = get_candidates_multiple(&new_facets, all_points);
     let candidates = divide_points_to_facets(&possible, &new_facets);
 
     for (n, f) in new_facets.iter().enumerate() {
-        quickhull3d_recursion(&candidates[n+1], &f, out, all_points);
+        quickhull3d_recursion(&candidates[n+1], f, out, all_points);
     }
 }
 
@@ -209,13 +209,13 @@ pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     let mut hull: Vec<Facet3> = Vec::new();
 
     let mut unique: Vec<Point3> = Vec::new();
-    'outer: for i in 0..extrema.len() {
+    'outer: for i in &extrema {
         for j in &unique {
-            if *j == extrema[i] {
+            if *j == *i {
                 continue 'outer;
             }
         }
-        unique.push(extrema[i]);
+        unique.push(*i);
     }
     if unique.len() < 3 {
         panic!();
@@ -240,7 +240,7 @@ pub fn quickhull3d(pointset: &[Point3]) -> Vec<Facet3> {
     hull.push(f3.clone());
     hull.push(f4.clone());
 
-    let candidates = divide_points_to_facets(&pointset, &facets);
+    let candidates = divide_points_to_facets(pointset, &facets);
 
     let mut ctr = 0;
 
@@ -258,7 +258,7 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
     let in_front_of = get_candidates(facet, candidates);
 
     // if there are still candidates continue, else we are finished
-    if in_front_of.len() == 0 {
+    if in_front_of.is_empty() {
         return
     }
     // if the facet was removed from out in the meantime, we do not need to test it
@@ -305,7 +305,7 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
     }
 
     *ctr += 1;
-    threejs(&all_points, &out, &q, &in_front_of, &visible_facets, &horizon, &format!("quickhull3d_{}.html", ctr)).expect("io error");
+    threejs(all_points, out, &q, &in_front_of, &visible_facets, &horizon, &format!("quickhull3d_{}.html", ctr)).expect("io error");
 
     // facets generated in this iteration of the recursion
     let mut new_facets = Vec::new();
@@ -318,11 +318,11 @@ fn quickhull3d_recursion(candidates: &[Point3], facet: &Facet3, out: &mut Vec<Fa
     // calculate for every candidate point the nearest facet
     // this way every point will only occur in one subtree of the recursion
     // FIXME we are testing far too many points. it we should discard interior points
-    let possible = get_candidates_multiple(&new_facets, &all_points);
+    let possible = get_candidates_multiple(&new_facets, all_points);
     let candidates = divide_points_to_facets(&possible, &new_facets);
 
     for (n, f) in new_facets.iter().enumerate() {
-        quickhull3d_recursion(&candidates[n+1], &f, out, all_points, ctr);
+        quickhull3d_recursion(&candidates[n+1], f, out, all_points, ctr);
     }
 }
 
@@ -343,6 +343,6 @@ mod tests {
 
     #[test]
     fn quickhull3d_80() {
-        check_3d_80(quickhull3d, "quickhull3d");
+        check_3d_80(quickhull3d);
     }
 }

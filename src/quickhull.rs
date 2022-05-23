@@ -37,7 +37,7 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
         .fold(Vec::new(), |mut acc, p| { acc.push(p.0); acc.push(p.1); acc });
 
     // if there is none: add b to out and return
-    if left_of.len() == 0 {
+    if left_of.is_empty() {
         let n = out.len();
         // ensure no collinear points
         if n < 4 || cross2d((out[n-4], out[n-3]), (out[n-2], out[n-1]), b) > 0f64 {
@@ -104,7 +104,7 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
     s.points(&left_of, "green");
 
     // if there is none: add b to out and return
-    if left_of.len() == 0 {
+    if left_of.is_empty() {
         let n = out.len();
         // ensure no collinear points
         if n < 4 || cross2d((out[n-4], out[n-3]), (out[n-2], out[n-1]), b) > 0f64 {
@@ -122,8 +122,8 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
         let l: [f64; 4] = [a.0, a.1, b.0, b.1];
         s.lines(&l, "red");
 
-        s.points(&out, "black");
-        s.lines(&out, "black");
+        s.points(out, "black");
+        s.lines(out, "black");
 
     } else {
         // else recurse with the edge (a, q) and (q, b)
@@ -140,14 +140,14 @@ fn qh_recursion(pointset: &[f64], a: (f64, f64), b: (f64, f64), out: &mut Vec<f6
         s.lines(&l, "red");
         all_lines.push(l);
 
-        s.points(&out, "black");
-        s.lines(&out, "black");
+        s.points(out, "black");
+        s.lines(out, "black");
 
         qh_recursion(&left_of, a, q, out, all, all_lines, ctr);
         qh_recursion(&left_of, q, b, out, all, all_lines, ctr);
     }
 
-    s.save(&filename);
+    s.save(&filename).expect("io error");
 }
 
 #[cfg(test)]

@@ -1,7 +1,8 @@
 use std::io;
-use std::io::prelude::*;
 use std::fs::File;
 use std::path::Path;
+use std::fmt::Write;
+use std::io::Write as FileWrite;
 
 use itertools::Itertools;
 
@@ -27,7 +28,7 @@ impl SVG {
         let path = Path::new(filename);
         let mut file = File::create(&path)?;
 
-        self.buffer.push_str("</svg>\n");
+        writeln!(self.buffer, "</svg>").expect("write error");
 
         write!(file, "{}", &self.buffer)?;
         Ok(())
@@ -35,7 +36,7 @@ impl SVG {
 
     pub fn points(&mut self, pointset: &[f64], color: &str) {
         for i in pointset.iter().tuples::<(_, _)>() {
-            self.buffer.push_str(&format!("<circle cx='{}' cy='{}' r='0.01' stroke='black' stroke-width='0' fill='{}' />\n", i.0, i.1, color));
+            writeln!(self.buffer, "<circle cx='{}' cy='{}' r='0.01' stroke='black' stroke-width='0' fill='{}' />", i.0, i.1, color).expect("write error");
         }
     }
 
@@ -44,7 +45,7 @@ impl SVG {
                             .tuples::<(_, _)>()
                             .tuple_windows::<(_, _)>()
         {
-            self.buffer.push_str(&format!("<line x1='{}' x2='{}' y1='{}' y2='{}' stroke='{}' stroke-width='0.002' />\n", a.0, b.0, a.1, b.1, color));
+            writeln!(self.buffer, "<line x1='{}' x2='{}' y1='{}' y2='{}' stroke='{}' stroke-width='0.002' />\n", a.0, b.0, a.1, b.1, color).expect("write error");
         }
     }
 
@@ -53,18 +54,24 @@ impl SVG {
                             .tuples::<(_, _)>()
                             .tuple_windows::<(_, _)>()
         {
-            self.buffer.push_str(&format!("<line x1='{}' x2='{}' y1='{}' y2='{}' stroke-dasharray='0.03,0.02' stroke='{}' stroke-width='0.005' />\n", a.0, b.0, a.1, b.1, color));
+            writeln!(self.buffer, "<line x1='{}' x2='{}' y1='{}' y2='{}' stroke-dasharray='0.03,0.02' stroke='{}' stroke-width='0.005' />\n", a.0, b.0, a.1, b.1, color).expect("write error");
         }
     }
 
     pub fn polygon(&mut self, points: &[f64], color: &str) {
-        self.buffer.push_str(&format!("<polygon fill='none' points='"));
+        writeln!(self.buffer, "<polygon fill='none' points='").expect("write error");
         for a in points.iter()
             .tuples::<(_, _)>()
         {
-            self.buffer.push_str(&format!("{},{} ", a.0, a.1));
+            writeln!(self.buffer, "{},{} ", a.0, a.1).expect("write error");
         }
-        self.buffer.push_str(&format!("' stroke='{}' stroke-width='0.002' />\n", color));
+        writeln!(self.buffer, "' stroke='{}' stroke-width='0.002' />", color).expect("write error");
+    }
+}
+
+impl Default for SVG {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

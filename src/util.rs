@@ -1,10 +1,6 @@
 use rand::{StdRng, Rng, SeedableRng};
 use itertools::Itertools;
-use crate::Point3;
-
-
-#[cfg(feature = "visual")]
-use crate::svg;
+use crate::{Point3, Facet3};
 
 pub fn get_test_vector_2d(n: usize) -> Vec<f64> {
     let seed: &[_] = &[42,];
@@ -25,6 +21,19 @@ pub fn get_test_vector_3d(n: usize) -> Vec<Point3> {
     .collect()
 }
 
+/// check that all points are behind every facet (or on)
+pub fn is_convex(facets: &[Facet3], points: &[Point3]) -> bool {
+    for f in facets {
+        for p in points {
+            if f.visible_from(p) {
+                return false
+            }
+        }
+    }
+
+    true
+}
+
 #[cfg(test)]
 pub mod tests {
     use super::*;
@@ -34,7 +43,6 @@ pub mod tests {
     use crate::Facet3;
     use crate::Point3;
 
-    use crate::d3::is_convex;
     use crate::{area, surface};
 
     #[cfg(feature = "visual")]
@@ -76,11 +84,10 @@ pub mod tests {
         ]
     }
 
-    pub(crate) fn check_3d_80(algo: fn(&[Point3]) -> Vec<Facet3>, name: &str) {
+    pub(crate) fn check_3d_80(algo: fn(&[Point3]) -> Vec<Facet3>) {
         let v = get_test_vector_3d(80);
 
         let hull = algo(&v);
-        //#[cfg(feature = "visual")] threejs(&v, &hull, "quickhull3d.html").expect("io error");
 
         assert!(is_convex(&hull, &v));
         assert_eq!(hull.len(), TEST_AREA_3D_POINTS);

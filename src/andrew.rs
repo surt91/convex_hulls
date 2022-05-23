@@ -103,7 +103,7 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
         s.points(&hull, "black");
         s.lines(&hull, "black");
         s.points(&[i.0, i.1], "red");
-        s.save(&filename);
+        s.save(&filename).expect("io error");
     }
     let t = k+2;
     for i in sorted.iter().rev() {
@@ -123,7 +123,7 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
         s.points(&hull, "black");
         s.lines(&hull, "black");
         s.points(&[i.0, i.1], "red");
-        s.save(&filename);
+        s.save(&filename).expect("io error");
     }
     // -2 because first and last are same
     hull.pop();

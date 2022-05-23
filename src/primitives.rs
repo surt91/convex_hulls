@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 pub fn side(p1: (f64, f64), p2: (f64, f64), p: (f64, f64)) -> f64 {
-    return (p2.1 - p1.1)*(p.0 - p1.0) + (-p2.0 + p1.0)*(p.1 - p1.1);
+    (p2.1 - p1.1)*(p.0 - p1.0) + (-p2.0 + p1.0)*(p.1 - p1.1)
 }
 
 pub fn point_in_octagon(octagon: [(f64, f64); 8], p: (f64, f64)) -> bool {
@@ -33,10 +33,10 @@ pub fn area(coord: &[f64]) -> f64 {
 }
 
 fn cw(o: (f64, f64), a: (f64, f64), b: (f64, f64)) -> bool {
-    return cross2d(o, a, b) > 0.;
+    cross2d(o, a, b) > 0.
 }
 fn ccw(o: (f64, f64), a: (f64, f64), b: (f64, f64)) -> bool {
-    return cross2d(o, a, b) < 0.;
+    cross2d(o, a, b) < 0.
 }
 
 // cmp: https://github.com/felipesfaria/ch_chan/blob/master/ch_chan/ch_chan.cpp

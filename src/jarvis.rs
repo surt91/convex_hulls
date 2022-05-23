@@ -22,8 +22,7 @@ pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
     let mut p = pointset.iter()
         .cloned()
         .tuples::<(_, _)>()
-        .filter(|&i| i != min)
-        .nth(0)
+        .find(|&i| i != min)
         .unwrap();
 
     loop {
@@ -71,8 +70,7 @@ pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
     let mut p = pointset.iter()
         .cloned()
         .tuples::<(_, _)>()
-        .filter(|&i| i != min)
-        .nth(0)
+        .find(|&i| i != min)
         .unwrap();
 
     let mut k = 0;
@@ -94,7 +92,7 @@ pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
                 s.lines(&[p.0, p.1, a.0, a.1], "green");
                 s.points(&[p.0, p.1], "green");
                 s.points(&[i.0, i.1], "red");
-                s.save(&filename);
+                s.save(&filename).expect("io error");
             }
 
             if orientation > 0f64 {
