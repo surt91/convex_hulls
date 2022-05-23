@@ -71,7 +71,7 @@ impl SVG {
 pub fn svg(pointset: &[f64], hull: &[f64], name: &str) -> Result<(), io::Error> {
     let mut s = SVG::new();
     s.points(pointset, "black");
-    s.lines(hull, "red");
+    s.polygon(hull, "red");
 
     let filename = if name.ends_with(".svg") {name.to_string()} else {format!("{}.svg", name)};
 
