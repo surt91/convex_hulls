@@ -1,8 +1,8 @@
 use std::io;
 use std::fs::File;
 use std::path::Path;
-use std::fmt::Write;
-use std::io::Write as FileWrite;
+use std::fmt::Write as FmtWrite;
+use std::io::Write as IoWrite;
 
 use itertools::Itertools;
 
@@ -26,6 +26,9 @@ impl SVG {
 
     pub fn save(&mut self, filename: &str) -> Result<(), io::Error> {
         let path = Path::new(filename);
+        if let Some(dir) = path.parent() {
+            std::fs::create_dir_all(dir)?;
+        }
         let mut file = File::create(&path)?;
 
         writeln!(self.buffer, "</svg>").expect("write error");
