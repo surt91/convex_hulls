@@ -83,7 +83,11 @@ pub fn svg(pointset: &[f64], hull: &[f64], name: &str) -> Result<(), io::Error> 
     s.points(pointset, "black");
     s.polygon(hull, "red");
 
-    let filename = if name.ends_with(".svg") {name.to_string()} else {format!("{}.svg", name)};
+    let filename = if name.ends_with(".svg") {
+        name.to_string()
+    } else {
+        format!("{}.svg", name)
+    };
 
     s.save(&filename)
 }

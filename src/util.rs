@@ -1,24 +1,51 @@
-use rand::{StdRng, Rng, SeedableRng};
+use rand::{Rng, SeedableRng};
+use rand_pcg::Pcg64;
+use rand_distr::{Normal, Uniform};
 use itertools::Itertools;
 use crate::{Point3, Facet3};
 
 pub fn get_test_vector_2d(n: usize) -> Vec<f64> {
-    let seed: &[_] = &[42,];
-    let mut rng: StdRng = SeedableRng::from_seed(seed);
-    rng.gen_iter::<f64>()
-    .take(n * 2)
-    .collect()
+    let seed = 42;
+    let rng: Pcg64 = SeedableRng::seed_from_u64(seed);
+    let uniform = Uniform::new(0.0, 1.0);
+    rng.sample_iter(uniform)
+        .take(n * 2)
+        .collect()
+}
+
+pub fn get_test_vector_gaussian(n: usize) -> Vec<f64> {
+    let seed = 42;
+    let mut rng1: Pcg64 = SeedableRng::seed_from_u64(seed);
+    let rng2: Pcg64 = SeedableRng::seed_from_u64(rng1.gen());
+    let normal1 = Normal::new(0.0, 2.0).unwrap();
+    let normal2 = Normal::new(0.0, 3.0).unwrap();
+    let positions: Vec<f64> = rng2.sample_iter(normal2)
+        .take(n)
+        .interleave(
+            (&mut rng1)
+                .sample_iter(normal1)
+                .take(n)
+        )
+        .collect();
+    let scale = positions.iter()
+        .map(|x| x.abs())
+        .reduce(f64::max)
+        .unwrap();
+    positions.iter()
+        .map(|x| x / scale / 2. + 0.5)
+        .collect()
 }
 
 pub fn get_test_vector_3d(n: usize) -> Vec<Point3> {
-    let seed: &[_] = &[42,];
-    let mut rng: StdRng = SeedableRng::from_seed(seed);
-    rng.gen_iter::<f64>()
-    .map(|a| (a*100.))
-    .take(n * 3)
-    .tuples()
-    .map(|(x, y, z)| Point3::new(x, y, z))
-    .collect()
+    let seed = 42;
+    let rng: Pcg64 = SeedableRng::seed_from_u64(seed);
+    let uniform = Uniform::new(0.0, 1.0);
+    rng.sample_iter(uniform)
+        .map(|a| (a*100.))
+        .take(n * 3)
+        .tuples()
+        .map(|(x, y, z)| Point3::new(x, y, z))
+        .collect()
 }
 
 /// check that all points are behind every facet (or on)
@@ -48,10 +75,10 @@ pub mod tests {
     #[cfg(feature = "visual")]
     use crate::svg;
 
-    const TEST_AREA_2D: f64 = 0.9915082733644154;
-    const TEST_AREA_2D_POINTS: usize = 48;
-    const TEST_AREA_3D: f64 = 37311.19729514181;
-    const TEST_AREA_3D_POINTS: usize = 52;
+    const TEST_AREA_2D: f64 = 0.9887111601582999;
+    const TEST_AREA_2D_POINTS: usize = 38;
+    const TEST_AREA_3D: f64 = 40322.038417123375;
+    const TEST_AREA_3D_POINTS: usize = 50;
 
     pub(crate) fn check_2048(algo: fn(&[f64]) -> Vec<f64>, name: &str) {
         let v = get_test_vector_2d(2048);
