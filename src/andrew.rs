@@ -129,6 +129,14 @@ pub fn andrew(pointset: &[f64]) -> Vec<f64> {
     hull.pop();
     hull.pop();
 
+    g += 1;
+    let filename = format!("img/andrew_{:04}.svg", g);
+    let mut s = SVG::new();
+    s.points(pointset, "grey");
+    s.points(&hull, "black");
+    s.polygon(&hull, "black");
+    s.save(&filename).expect("io error");
+
     hull
 }
 

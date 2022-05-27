@@ -112,6 +112,14 @@ pub fn jarvis(pointset: &[f64]) -> Vec<f64> {
 
     }
 
+    k += 1;
+    let filename = format!("img/jarvis_{:04}.svg", k);
+    let mut s = SVG::new();
+    s.points(pointset, "grey");
+    s.points(&hull, "black");
+    s.polygon(&hull, "black");
+    s.save(&filename).expect("io error");
+
     hull
 }
 
