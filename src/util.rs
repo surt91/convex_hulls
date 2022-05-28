@@ -48,6 +48,18 @@ pub fn get_test_vector_3d(n: usize) -> Vec<Point3> {
         .collect()
 }
 
+pub fn get_test_vector_gaussian_3d(n: usize) -> Vec<Point3> {
+    let seed = 42;
+    let rng: Pcg64 = SeedableRng::seed_from_u64(seed);
+    let normal = Normal::new(0.0, 0.2).unwrap();
+    rng.sample_iter(normal)
+        .map(|a| (a*100.))
+        .take(n * 3)
+        .tuples()
+        .map(|(x, y, z)| Point3::new(x, y, z))
+        .collect()
+}
+
 /// check that all points are behind every facet (or on)
 pub fn is_convex(facets: &[Facet3], points: &[Point3]) -> bool {
     for f in facets {
